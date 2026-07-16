@@ -1,0 +1,50 @@
+{
+  "id": "KIRLET-hr",
+  "technicalId": "kirlet-hr",
+  "name": "Human Resources",
+  "version": "0.1.0",
+  "image": "kyostenas/kirlet-hr:0.1.0",
+  "compat": {
+    "nox": ">=0.1.0 <2.0.0",
+    "kit": "^0.1.0"
+  },
+  "api": {
+    "basePath": "/api/m/kirlet-hr",
+    "port": 3000,
+    "healthPath": "/health"
+  },
+  "permissions": [
+    {
+      "id": "kirlet.hr.employees.read",
+      "label": "Read employees"
+    },
+    {
+      "id": "kirlet.hr.employees.write",
+      "label": "Register employees"
+    }
+  ],
+  "menu": [
+    {
+      "id": "hr.root",
+      "label": "HR",
+      "order": 50,
+      "realm": "internal",
+      "children": [
+        {
+          "id": "hr.employees.register",
+          "label": "Registro de empleados",
+          "order": 10,
+          "realm": "internal",
+          "pageId": "hr.employees.register",
+          "permission": "kirlet.hr.employees.write"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": "hr.employees.register",
+      "path": "employees/register"
+    }
+  ]
+}
