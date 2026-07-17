@@ -9,3 +9,11 @@
 Standard fields: `id`, `name` (+ HR fields).
 
 History: `GET /history?record_id=` + auto-append on POST/PATCH.
+
+## Change history
+
+Mutations (POST/PATCH employees) append to an in-memory audit list:
+
+- resource: `employee`
+- record_id, action, summary, payload before/after
+- Query: `GET /history?record_id=<id>`
