@@ -1,8 +1,8 @@
-# KIRLET-hr — Human Resources (employee registration)
+# KIRLET-hr — Human Resources (Employees feature-shell)
 FROM oven/bun:1.2-alpine
 
 WORKDIR /app
-COPY package.json server.ts manifest.json ./
+COPY package.json server.ts server.spec.ts manifest.json ./
 
 ENV PORT=3000
 ENV KIRLET_TECHNICAL_ID=kirlet-hr
