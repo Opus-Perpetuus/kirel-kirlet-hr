@@ -19,3 +19,4 @@ Mutations (POST/PATCH employees) append to an in-memory audit list:
 - Query: `GET /history?record_id=<id>`
 pluralLabel: empleados
 POST /seed
+Empty list: nox.table empty via host
