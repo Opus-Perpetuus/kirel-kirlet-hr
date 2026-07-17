@@ -38,3 +38,4 @@ bun test
 bun run start
 docker build -t kyostenas/kirlet-hr:0.2.0 .
 ```
+Source of truth: github.com/Opus-Perpetuus/kirel-kirlet-hr
