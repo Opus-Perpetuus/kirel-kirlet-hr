@@ -1,10 +1,12 @@
 {
   "name": "kirlet-hr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "bun run server.ts",
-    "test": "bun test server.spec.ts"
+    "test": "bun test",
+    "test:server": "bun test server.spec.ts",
+    "dev": "bun --watch run server.ts"
   }
 }
