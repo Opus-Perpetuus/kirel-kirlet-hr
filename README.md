@@ -1,6 +1,6 @@
 # KIRLET-hr — Human Resources
 
-First vertical kirlet for **Kirel NOX**: employee registration under a nested HR menu.
+Kirel NOX kirlet for **Employees** (single menu entry), aligned with admin **feature-shell** principles: list / detail / edit.
 
 ## Identity
 
@@ -8,20 +8,33 @@ First vertical kirlet for **Kirel NOX**: employee registration under a nested HR
 |--|--|
 | Catalog id | `KIRLET-hr` |
 | Technical id | `kirlet-hr` |
-| Image | `kyostenas/kirlet-hr:0.1.0` |
+| Image | `kyostenas/kirlet-hr:0.2.0` |
+
+## Menu
+
+**One menu:** Employees (`hr.employees`) — list/detail/edit under the feature-shell pattern (no separate “Nuevo empleado” root item).
 
 ## Endpoints (via NOX gateway `/api/m/kirlet-hr`)
 
 | Path | Method | Purpose |
 |------|--------|---------|
 | `/health` | GET | Ready probe |
-| `/menu` | GET | Nested HR menu (Registro de empleados) |
-| `/pages` | GET | Employee registration UI descriptor (`nox.*`) |
-| `/employees` | GET/POST | List / register employees |
+| `/menu` | GET | Single Employees menu |
+| `/pages` | GET | Page catalog |
+| `/pages/hr.employees.list` | GET | List descriptor |
+| `/pages/hr.employees.detail` | GET | Detail descriptor |
+| `/pages/hr.employees.edit` | GET | Edit descriptor |
+| `/employees` | GET/POST | List / create |
+| `/employees/:id` | GET/PATCH | Read / update |
+
+## Workspace
+
+See [WORKSPACE.md](./WORKSPACE.md) — open with `kirel-nox` multi-root workspace.
 
 ## Build & run
 
 ```bash
-docker build -t kyostenas/kirlet-hr:0.1.0 -t kyostenas/kirlet-hr:latest .
-docker run --rm -p 3101:3000 kyostenas/kirlet-hr:0.1.0
+bun test
+bun run start
+docker build -t kyostenas/kirlet-hr:0.2.0 .
 ```
