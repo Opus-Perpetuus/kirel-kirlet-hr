@@ -18,3 +18,4 @@ Mutations (POST/PATCH employees) append to an in-memory audit list:
 - record_id, action, summary, payload before/after
 - Query: `GET /history?record_id=<id>`
 pluralLabel: empleados
+POST /seed
