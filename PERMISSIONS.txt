@@ -1,0 +1,1 @@
+Permissions: kirlet.hr.employees.read | kirlet.hr.employees.write
