@@ -7,6 +7,13 @@
     "start": "bun run server.ts",
     "test": "bun test",
     "test:server": "bun test server.spec.ts",
-    "dev": "bun --watch run server.ts"
+    "dev": "bun --watch run server.ts",
+    "release": "standard-version --config .versionrc.cjs",
+    "release:dry": "standard-version --config .versionrc.cjs --dry-run",
+    "release:first": "standard-version --config .versionrc.cjs --first-release",
+    "docker:build": "docker build -t kyostenas/kirlet-hr:$(node -p \"require('./package.json').version\") -t kyostenas/kirlet-hr:latest ."
+  },
+  "devDependencies": {
+    "standard-version": "^9.5.0"
   }
 }
