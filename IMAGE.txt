@@ -1,1 +1,1 @@
-kyostenas/kirlet-hr:0.2.0
+kyostenas/kirlet-hr:0.4.0
