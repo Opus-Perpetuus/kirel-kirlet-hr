@@ -1,0 +1,11 @@
+node_modules
+*.spec.ts
+.git
+*.md
+!README.md
+package-lock.json
+release/
+data/
+tmp/
+*.db
+*.db-*

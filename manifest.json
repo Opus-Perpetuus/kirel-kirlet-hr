@@ -1,50 +1,118 @@
 {
   "id": "KIRLET-hr",
   "technicalId": "kirlet-hr",
-  "name": "Human Resources",
+  "name": "Recursos Humanos",
   "version": "0.3.0",
   "image": "kyostenas/kirlet-hr:0.3.0",
   "compat": {
-    "nox": ">=0.1.0 <2.0.0",
-    "kit": "^0.1.0"
+    "nox": ">=0.3.0 <2.0.0",
+    "kit": "^0.3.0"
   },
   "api": {
     "basePath": "/api/m/kirlet-hr",
     "port": 3000,
     "healthPath": "/health"
   },
+  "storage": {
+    "data": true
+  },
+  "icon": {
+    "label": "RR.HH.",
+    "paths": [
+      {
+        "d": "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+        "paint": "fill"
+      }
+    ]
+  },
   "permissions": [
-    {
-      "id": "kirlet.hr.employees.read",
-      "label": "Read employees"
-    },
-    {
-      "id": "kirlet.hr.employees.write",
-      "label": "Write employees"
-    }
+    { "id": "kirlet.hr.employees.read", "label": "Ver empleados" },
+    { "id": "kirlet.hr.employees.write", "label": "Editar empleados" },
+    { "id": "kirlet.hr.departments.read", "label": "Ver departamentos" },
+    { "id": "kirlet.hr.departments.write", "label": "Editar departamentos" },
+    { "id": "kirlet.hr.positions.read", "label": "Ver puestos" },
+    { "id": "kirlet.hr.positions.write", "label": "Editar puestos" },
+    { "id": "kirlet.hr.contracts.read", "label": "Ver contratos" },
+    { "id": "kirlet.hr.contracts.write", "label": "Editar contratos" },
+    { "id": "kirlet.hr.leave.read", "label": "Ver ausencias" },
+    { "id": "kirlet.hr.leave.write", "label": "Editar ausencias" },
+    { "id": "kirlet.hr.documents.read", "label": "Ver documentos" },
+    { "id": "kirlet.hr.documents.write", "label": "Editar documentos" },
+    { "id": "kirlet.hr.dashboard.read", "label": "Ver panel" },
+    { "id": "kirlet.hr.dashboard.write", "label": "Administrar panel" }
   ],
   "menu": [
     {
+      "id": "hr.dashboard",
+      "label": "Panel",
+      "order": 5,
+      "realm": "internal",
+      "pageId": "hr.dashboard",
+      "path": "dashboard",
+      "permission": "kirlet.hr.dashboard.read"
+    },
+    {
       "id": "hr.employees",
-      "label": "Employees",
+      "label": "Empleados",
       "order": 10,
       "realm": "internal",
-      "pageId": "hr.employees.list",
+      "pageId": "hr.employees",
+      "path": "employees",
       "permission": "kirlet.hr.employees.read"
+    },
+    {
+      "id": "hr.departments",
+      "label": "Departamentos",
+      "order": 20,
+      "realm": "internal",
+      "pageId": "hr.departments",
+      "path": "departments",
+      "permission": "kirlet.hr.departments.read"
+    },
+    {
+      "id": "hr.positions",
+      "label": "Puestos",
+      "order": 30,
+      "realm": "internal",
+      "pageId": "hr.positions",
+      "path": "positions",
+      "permission": "kirlet.hr.positions.read"
+    },
+    {
+      "id": "hr.contracts",
+      "label": "Contratos",
+      "order": 40,
+      "realm": "internal",
+      "pageId": "hr.contracts",
+      "path": "contracts",
+      "permission": "kirlet.hr.contracts.read"
+    },
+    {
+      "id": "hr.leave-requests",
+      "label": "Ausencias",
+      "order": 50,
+      "realm": "internal",
+      "pageId": "hr.leave-requests",
+      "path": "leave-requests",
+      "permission": "kirlet.hr.leave.read"
+    },
+    {
+      "id": "hr.documents",
+      "label": "Documentos",
+      "order": 60,
+      "realm": "internal",
+      "pageId": "hr.documents",
+      "path": "documents",
+      "permission": "kirlet.hr.documents.read"
     }
   ],
   "pages": [
-    {
-      "id": "hr.employees.list",
-      "path": "employees"
-    },
-    {
-      "id": "hr.employees.detail",
-      "path": "employees/detail"
-    },
-    {
-      "id": "hr.employees.edit",
-      "path": "employees/edit"
-    }
+    { "id": "hr.dashboard", "path": "dashboard", "permission": "kirlet.hr.dashboard.read" },
+    { "id": "hr.employees", "path": "employees", "permission": "kirlet.hr.employees.read" },
+    { "id": "hr.departments", "path": "departments", "permission": "kirlet.hr.departments.read" },
+    { "id": "hr.positions", "path": "positions", "permission": "kirlet.hr.positions.read" },
+    { "id": "hr.contracts", "path": "contracts", "permission": "kirlet.hr.contracts.read" },
+    { "id": "hr.leave-requests", "path": "leave-requests", "permission": "kirlet.hr.leave.read" },
+    { "id": "hr.documents", "path": "documents", "permission": "kirlet.hr.documents.read" }
   ]
 }
