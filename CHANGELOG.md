@@ -2,6 +2,38 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.4.4](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.0...v0.4.4) (2026-07-29)
+
+
+### Features
+
+* **hr:** live dashboard stats, employee user link, demo metrics ([f9e7c1d](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/f9e7c1dfa870eae14fa4313b2c7339bce2198b48))
+* **hr:** registro de incidencias completo (0.4.3) ([45a07bd](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/45a07bdefad62a34f7bf991830a802cc95be9dec))
+* **menu:** filled Kirita icon ids on every sidebar entry ([5433e96](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/5433e968500f80f837bff69d56127413ec71b1d6))
+
+
+### Bug Fixes
+
+* **hr:** allow history read with any module grant ([49154a1](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/49154a1e9c70314c915952b35b36a167729a216a))
+* **hr:** log real actor email on request lines ([0b605f4](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/0b605f44d3319874a02d911deff3bcef0af30e1e))
+* **icon:** original opus-reticulatum mark replaces Material glyph ([45ec09c](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/45ec09cdce7e5de68b1718f07222290dcfc7b857))
+
+
+### Docker
+
+* **hr:** vendor kit inside image so node_modules resolve at runtime ([8278d9c](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/8278d9c5fa1dedb5fc1fa7ac0d9dc4b10cd3e44a))
+
+
+### Documentation
+
+* **brand:** README logo and reticulatum mark assets ([8883d13](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/8883d13c74294a797a54a88b8818b2e21198c43e))
+
+
+### Miscellaneous Chores
+
+* **release:** 0.4.1 with reticulatum manifest icon ([c36e935](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/c36e935ecd53903707c5e00dccfd0a35dffcd9f8))
+* **release:** sync NOX catalog pin on postbump ([42a1013](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/42a10133211392095f0cfec4832b8f961a6aaa6c))
+
 ## 0.3.0 (2026-07-19)
 
 
