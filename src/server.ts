@@ -41,6 +41,7 @@ export async function handle_request(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   let status = 500;
+  let actor: string | null = null;
 
   try {
     const auth = resolve_identity(req, path);
@@ -49,6 +50,7 @@ export async function handle_request(req: Request): Promise<Response> {
       return auth.response;
     }
     const identity = auth.identity;
+    actor = identity?.email ?? null;
 
     // Meta
     if (path === "/health") {
@@ -155,7 +157,7 @@ export async function handle_request(req: Request): Promise<Response> {
         path,
         status,
         ms,
-        actor: null,
+        actor,
       }),
     );
   }
