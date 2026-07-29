@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.4.0-14b8a6?style=flat-square" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.4.1-14b8a6?style=flat-square" />
   <img alt="Catalog" src="https://img.shields.io/badge/id-KIRLET--hr-0f172a?style=flat-square" />
   <img alt="Technical" src="https://img.shields.io/badge/technical-kirlet--hr-243044?style=flat-square" />
   <img alt="Bun" src="https://img.shields.io/badge/runtime-Bun-fbf0df?style=flat-square&logo=bun&logoColor=black" />
@@ -24,7 +24,7 @@
 |--|--|
 | Catalog id | `KIRLET-hr` |
 | Technical id | `kirlet-hr` |
-| Image | `kyostenas/kirlet-hr:0.4.0` |
+| Image | `kyostenas/kirlet-hr:0.4.1` |
 | Mark | `manifest.icon` (reticulatum permutation) → NOX registry `kirlet:kirlet-hr` |
 
 ## Menu (sidebar icons)
@@ -60,7 +60,7 @@ See [WORKSPACE.md](./WORKSPACE.md) — open with `kirel-nox` multi-root workspac
 ```bash
 bun test
 bun run start
-docker build -t kyostenas/kirlet-hr:0.4.0 .
+docker build -t kyostenas/kirlet-hr:0.4.1 .
 ```
 
 Brand mark sources: `docs/brand/kirlet-hr.on-dark.svg` · PNG for GitHub: `docs/brand/kirlet-hr-readme-256.png`.
