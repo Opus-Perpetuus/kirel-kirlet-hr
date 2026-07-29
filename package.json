@@ -10,7 +10,10 @@
     "release": "standard-version --config .versionrc.cjs",
     "release:dry": "standard-version --config .versionrc.cjs --dry-run",
     "release:first": "standard-version --config .versionrc.cjs --first-release",
-    "docker:build": "docker build --build-context kit=../kirel-nox/libs/kit -t kyostenas/kirlet-hr:$(cat VERSION) -t kyostenas/kirlet-hr:latest ."
+    "docker:build": "docker build --build-context kit=../kirel-nox/libs/kit -t kyostenas/kirlet-hr:$(cat VERSION) -t kyostenas/kirlet-hr:latest .",
+    "docker:push": "docker push kyostenas/kirlet-hr:$(cat VERSION) && docker push kyostenas/kirlet-hr:latest",
+    "catalog:sync": "bash scripts/sync-nox-catalog-pin.sh",
+    "release:docker": "bun run docker:build && bun run docker:push"
   },
   "dependencies": {
     "@opus-perpetuus/kirel-nox-kit": "file:../kirel-nox/libs/kit"
