@@ -2,6 +2,13 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.4.5](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.4...v0.4.5) (2026-07-29)
+
+
+### Miscellaneous Chores
+
+* **release:** include VERSION and IMAGE.txt for 0.4.4 ([9e31188](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/9e311888e26a39bc10e3314961135c83032288c0))
+
 ### [0.4.4](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.0...v0.4.4) (2026-07-29)
 
 
