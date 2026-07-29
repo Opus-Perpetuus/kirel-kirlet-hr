@@ -2,8 +2,8 @@
   "id": "KIRLET-hr",
   "technicalId": "kirlet-hr",
   "name": "Recursos Humanos",
-  "version": "0.4.2",
-  "image": "kyostenas/kirlet-hr:0.4.2",
+  "version": "0.4.3",
+  "image": "kyostenas/kirlet-hr:0.4.3",
   "compat": {
     "nox": ">=0.3.0 <2.0.0",
     "kit": "^0.3.0"
@@ -85,6 +85,14 @@
     {
       "id": "kirlet.hr.dashboard.write",
       "label": "Administrar panel"
+    },
+    {
+      "id": "kirlet.hr.incidents.read",
+      "label": "Ver incidencias"
+    },
+    {
+      "id": "kirlet.hr.incidents.write",
+      "label": "Registrar y gestionar incidencias"
     }
   ],
   "menu": [
@@ -157,6 +165,16 @@
       "path": "documents",
       "permission": "kirlet.hr.documents.read",
       "icon": "attachment"
+    },
+    {
+      "id": "hr.incidents",
+      "label": "Incidencias",
+      "order": 70,
+      "realm": "internal",
+      "pageId": "hr.incidents",
+      "path": "incidents",
+      "permission": "kirlet.hr.incidents.read",
+      "icon": "warning"
     }
   ],
   "pages": [
@@ -194,6 +212,11 @@
       "id": "hr.documents",
       "path": "documents",
       "permission": "kirlet.hr.documents.read"
+    },
+    {
+      "id": "hr.incidents",
+      "path": "incidents",
+      "permission": "kirlet.hr.incidents.read"
     }
   ]
 }

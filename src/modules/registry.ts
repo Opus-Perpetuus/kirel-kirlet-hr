@@ -17,6 +17,8 @@ import { handle_documents } from "./documents/routes.ts";
 import { build_documents_page } from "./documents/descriptors.ts";
 import { handle_dashboard } from "./dashboard/routes.ts";
 import { build_dashboard_page } from "./dashboard/descriptors.ts";
+import { handle_incidents } from "./incidents/routes.ts";
+import { build_incidents_page } from "./incidents/descriptors.ts";
 
 export type RouteHandler = (
   req: Request,
@@ -33,6 +35,7 @@ const handlers: RouteHandler[] = [
   handle_leave,
   handle_documents,
   handle_dashboard,
+  handle_incidents,
 ];
 
 export async function dispatch_module(
@@ -97,6 +100,12 @@ export const PAGE_ENTRIES: PageEntry[] = [
     path: "documents",
     permission: "kirlet.hr.documents.read",
     build: build_documents_page,
+  },
+  {
+    id: "hr.incidents",
+    path: "incidents",
+    permission: "kirlet.hr.incidents.read",
+    build: build_incidents_page,
   },
 ];
 

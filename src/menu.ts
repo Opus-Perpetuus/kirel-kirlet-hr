@@ -87,6 +87,16 @@ export function build_hr_menu(): MenuItem[] {
       permission: "kirlet.hr.documents.read",
       icon: "attachment",
     },
+    {
+      id: "hr.incidents",
+      label: "Incidencias",
+      order: 70,
+      realm: "internal",
+      pageId: "hr.incidents",
+      path: "incidents",
+      permission: "kirlet.hr.incidents.read",
+      icon: "warning",
+    },
   ];
 }
 

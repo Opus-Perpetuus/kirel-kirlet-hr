@@ -162,6 +162,41 @@ export function seed_demo(): { departments: number; employees: number } {
     iso,
   );
 
+  // Demo incidents for registro de incidencias
+  const year = new Date().getFullYear();
+  db.query(
+    `INSERT INTO incidents (
+       id, folio, title, description, employee_id, type, severity, status,
+       occurred_at, location, reported_by, assigned_to, resolution_note,
+       closed_at, is_active, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, 'accidente', 'media', 'abierta', ?, 'Planta demo', 'seed', NULL, NULL, NULL, 1, ?, ?)`,
+  ).run(
+    new_id("inc"),
+    `INC-${year}-0001`,
+    "Resbalón en pasillo",
+    "Piso mojado sin señalización",
+    emp1,
+    today,
+    iso,
+    iso,
+  );
+  db.query(
+    `INSERT INTO incidents (
+       id, folio, title, description, employee_id, type, severity, status,
+       occurred_at, location, reported_by, assigned_to, resolution_note,
+       closed_at, is_active, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, 'queja', 'baja', 'en_revision', ?, 'Oficinas', 'seed', 'RR.HH.', NULL, NULL, 1, ?, ?)`,
+  ).run(
+    new_id("inc"),
+    `INC-${year}-0002`,
+    "Ruido excesivo en área de trabajo",
+    "Reporte de molestia acústica en el open space",
+    emp2,
+    today,
+    iso,
+    iso,
+  );
+
   return { departments: 2, employees: 2 };
 }
 
