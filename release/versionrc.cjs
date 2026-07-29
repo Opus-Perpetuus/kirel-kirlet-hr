@@ -25,15 +25,19 @@ module.exports = {
   types: [...byType.values()],
   releaseCommitMessageFormat: "chore(release): {{currentTag}}",
   packageFiles: [{ filename: "package.json", type: "json" }],
+  // VERSION + IMAGE.txt as bumpFiles so standard-version stages them in the
+  // release commit (precommit git-add alone is not enough — SV only commits
+  // known bumpFiles + changelog).
   bumpFiles: [
     { filename: "package.json", type: "json" },
     { filename: "manifest.json", type: "json" },
+    { filename: "VERSION", updater: require("./plain-version-updater.cjs") },
+    { filename: "IMAGE.txt", updater: require("./image-txt-updater.cjs") },
   ],
   scripts: {
-    // VERSION + manifest image, then pin sibling NOX DEFAULT_CATALOG (auto catalog sync).
+    // Align manifest.image with VERSION, then pin sibling NOX DEFAULT_CATALOG.
     postbump:
-      "node -e \"const fs=require('fs'); const v=require('./package.json').version; fs.writeFileSync('VERSION', v+'\\n'); fs.writeFileSync('IMAGE.txt', 'kyostenas/kirlet-hr:'+v+'\\n'); const m=JSON.parse(fs.readFileSync('manifest.json','utf8')); m.version=v; m.image='kyostenas/kirlet-hr:'+v; fs.writeFileSync('manifest.json', JSON.stringify(m,null,2)+'\\n');\" && bash scripts/sync-nox-catalog-pin.sh",
-    // Ensure VERSION/IMAGE.txt land in the release commit (not only package.json).
+      "node -e \"const fs=require('fs'); const v=require('./package.json').version; const m=JSON.parse(fs.readFileSync('manifest.json','utf8')); m.version=v; m.image='kyostenas/kirlet-hr:'+v; fs.writeFileSync('manifest.json', JSON.stringify(m,null,2)+'\\n');\" && bash scripts/sync-nox-catalog-pin.sh",
     precommit: "git add VERSION IMAGE.txt manifest.json package.json",
   },
   header:
