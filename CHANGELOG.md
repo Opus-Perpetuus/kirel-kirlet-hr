@@ -2,6 +2,15 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.4.6](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.5...v0.4.6) (2026-07-29)
+
+
+### Bug Fixes
+
+* **menu:** single RR.HH. group instead of one section per page ([b4078e8](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/b4078e81973f39d4ab674cd92c2afb2b0d495839))
+* **release:** bump VERSION and IMAGE.txt as standard-version files ([20cc0cc](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/20cc0cc2f460d3debab66f1363bca4a7faea53fe))
+* **release:** use path-string VERSION/IMAGE updaters for standard-version ([aca3174](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/aca317429f2fcab92c59cd2d9cd080f6d82ea2f3))
+
 ### [0.4.5](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.4...v0.4.5) (2026-07-29)
 
 
