@@ -31,8 +31,9 @@ module.exports = {
   bumpFiles: [
     { filename: "package.json", type: "json" },
     { filename: "manifest.json", type: "json" },
-    { filename: "VERSION", updater: require("./plain-version-updater.cjs") },
-    { filename: "IMAGE.txt", updater: require("./image-txt-updater.cjs") },
+    // path strings — require() is lost when standard-version clones config
+    { filename: "VERSION", updater: "release/plain-version-updater.cjs" },
+    { filename: "IMAGE.txt", updater: "release/image-txt-updater.cjs" },
   ],
   scripts: {
     // Align manifest.image with VERSION, then pin sibling NOX DEFAULT_CATALOG.
