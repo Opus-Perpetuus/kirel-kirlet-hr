@@ -10,9 +10,11 @@ export type MenuItem = {
   pageId: string;
   path?: string;
   permission?: string;
+  /** Kirita registry icon id for NOX sidebar. */
+  icon?: string;
 };
 
-/** Menú es-MX con permisos por módulo. */
+/** Menú es-MX con permisos e íconos por módulo. */
 export function build_hr_menu(): MenuItem[] {
   return [
     {
@@ -23,6 +25,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.dashboard",
       path: "dashboard",
       permission: "kirlet.hr.dashboard.read",
+      icon: "dashboard",
     },
     {
       id: "hr.employees",
@@ -32,6 +35,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.employees",
       path: "employees",
       permission: "kirlet.hr.employees.read",
+      icon: "users",
     },
     {
       id: "hr.departments",
@@ -41,6 +45,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.departments",
       path: "departments",
       permission: "kirlet.hr.departments.read",
+      icon: "building",
     },
     {
       id: "hr.positions",
@@ -50,6 +55,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.positions",
       path: "positions",
       permission: "kirlet.hr.positions.read",
+      icon: "briefcase",
     },
     {
       id: "hr.contracts",
@@ -59,6 +65,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.contracts",
       path: "contracts",
       permission: "kirlet.hr.contracts.read",
+      icon: "document",
     },
     {
       id: "hr.leave-requests",
@@ -68,6 +75,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.leave-requests",
       path: "leave-requests",
       permission: "kirlet.hr.leave.read",
+      icon: "calendar",
     },
     {
       id: "hr.documents",
@@ -77,6 +85,7 @@ export function build_hr_menu(): MenuItem[] {
       pageId: "hr.documents",
       path: "documents",
       permission: "kirlet.hr.documents.read",
+      icon: "attachment",
     },
   ];
 }

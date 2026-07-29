@@ -95,7 +95,8 @@
       "realm": "internal",
       "pageId": "hr.dashboard",
       "path": "dashboard",
-      "permission": "kirlet.hr.dashboard.read"
+      "permission": "kirlet.hr.dashboard.read",
+      "icon": "dashboard"
     },
     {
       "id": "hr.employees",
@@ -104,7 +105,8 @@
       "realm": "internal",
       "pageId": "hr.employees",
       "path": "employees",
-      "permission": "kirlet.hr.employees.read"
+      "permission": "kirlet.hr.employees.read",
+      "icon": "users"
     },
     {
       "id": "hr.departments",
@@ -113,7 +115,8 @@
       "realm": "internal",
       "pageId": "hr.departments",
       "path": "departments",
-      "permission": "kirlet.hr.departments.read"
+      "permission": "kirlet.hr.departments.read",
+      "icon": "building"
     },
     {
       "id": "hr.positions",
@@ -122,7 +125,8 @@
       "realm": "internal",
       "pageId": "hr.positions",
       "path": "positions",
-      "permission": "kirlet.hr.positions.read"
+      "permission": "kirlet.hr.positions.read",
+      "icon": "briefcase"
     },
     {
       "id": "hr.contracts",
@@ -131,7 +135,8 @@
       "realm": "internal",
       "pageId": "hr.contracts",
       "path": "contracts",
-      "permission": "kirlet.hr.contracts.read"
+      "permission": "kirlet.hr.contracts.read",
+      "icon": "document"
     },
     {
       "id": "hr.leave-requests",
@@ -140,7 +145,8 @@
       "realm": "internal",
       "pageId": "hr.leave-requests",
       "path": "leave-requests",
-      "permission": "kirlet.hr.leave.read"
+      "permission": "kirlet.hr.leave.read",
+      "icon": "calendar"
     },
     {
       "id": "hr.documents",
@@ -149,7 +155,8 @@
       "realm": "internal",
       "pageId": "hr.documents",
       "path": "documents",
-      "permission": "kirlet.hr.documents.read"
+      "permission": "kirlet.hr.documents.read",
+      "icon": "attachment"
     }
   ],
   "pages": [
