@@ -64,14 +64,15 @@ export function seed_demo(): { departments: number; employees: number } {
   db.query(
     `INSERT INTO employees (
       id, name, full_name, email, department_id, position_id, manager_id,
-      hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, NULL, NULL, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
+      user_id, hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, NULL, NULL, ?, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
   ).run(
     emp1,
     "Ada Lovelace",
     "Ada Lovelace",
     "ada@example.com",
     dep_eng,
+    "user-demo-ada",
     today,
     iso,
     iso,
@@ -79,8 +80,8 @@ export function seed_demo(): { departments: number; employees: number } {
   db.query(
     `INSERT INTO employees (
       id, name, full_name, email, department_id, position_id, manager_id,
-      hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
+      user_id, hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
   ).run(
     emp2,
     "Grace Hopper",
@@ -122,7 +123,44 @@ export function seed_demo(): { departments: number; employees: number } {
          VALUES (?, ?, ?, ?, 12, 0)`,
       ).run(new_id("lb"), eid, vac.id, year);
     }
+    // Pending leave so the panel is not all zeros
+    const in_two_weeks = new Date();
+    in_two_weeks.setDate(in_two_weeks.getDate() + 14);
+    const in_three_weeks = new Date();
+    in_three_weeks.setDate(in_three_weeks.getDate() + 21);
+    const d = (x: Date) => x.toISOString().slice(0, 10);
+    db.query(
+      `INSERT INTO leave_requests (
+         id, employee_id, leave_type_id, start_date, end_date, days, reason,
+         status, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, 5, 'Vacaciones demo', 'pendiente', ?, ?)`,
+    ).run(
+      new_id("lr"),
+      emp2,
+      vac.id,
+      d(in_two_weeks),
+      d(in_three_weeks),
+      iso,
+      iso,
+    );
   }
+
+  // Contract expiring within 30d for dashboard metric
+  const end = new Date();
+  end.setDate(end.getDate() + 20);
+  db.query(
+    `INSERT INTO contracts (
+       id, employee_id, type, start_date, end_date, salary, currency, schedule,
+       status, notes, created_at, updated_at
+     ) VALUES (?, ?, 'determinado', ?, ?, 45000, 'MXN', 'completa', 'activo', 'Demo seed', ?, ?)`,
+  ).run(
+    new_id("ctr"),
+    emp1,
+    today,
+    end.toISOString().slice(0, 10),
+    iso,
+    iso,
+  );
 
   return { departments: 2, employees: 2 };
 }

@@ -129,6 +129,59 @@ describe("employees", () => {
     );
     expect(again.status).toBe(409);
   });
+
+  test("create/read/update round-trips optional user_id link", async () => {
+    const create = await handle_request(
+      new Request("http://local/employees", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          full_name: "Linked User",
+          email: "linked@t.local",
+          user_id: "nox-user-abc",
+        }),
+      }),
+    );
+    expect(create.status).toBe(201);
+    const created = (await create.json()) as {
+      data: { id: string; user_id: string | null };
+    };
+    expect(created.data.user_id).toBe("nox-user-abc");
+
+    const get = await handle_request(
+      new Request(`http://local/employees/${created.data.id}`),
+    );
+    const got = (await get.json()) as { data: { user_id: string | null } };
+    expect(got.data.user_id).toBe("nox-user-abc");
+
+    const patch = await handle_request(
+      new Request(`http://local/employees/${created.data.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ user_id: null }),
+      }),
+    );
+    expect(patch.status).toBe(200);
+    const patched = (await patch.json()) as {
+      data: { user_id: string | null };
+    };
+    expect(patched.data.user_id).toBeNull();
+
+    const create_null = await handle_request(
+      new Request("http://local/employees", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          full_name: "No Link",
+          email: "nolink@t.local",
+        }),
+      }),
+    );
+    const bare = (await create_null.json()) as {
+      data: { user_id: string | null };
+    };
+    expect(bare.data.user_id).toBeNull();
+  });
 });
 
 // (o-----------------------------------------------------------/\-----o)

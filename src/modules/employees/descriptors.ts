@@ -35,6 +35,7 @@ export function build_employees_page(): NoxPageDescriptor {
         columns: [
           { key: "name", label: "Nombre", sortable: true, priority: 1 },
           { key: "email", label: "Correo", sortable: true, priority: 2 },
+          { key: "user_id", label: "Usuario", sortable: false, priority: 3 },
           { key: "hired_at", label: "Alta", sortable: true, priority: 3 },
         ],
         fillHeight: true,
@@ -73,6 +74,12 @@ export function build_employees_page(): NoxPageDescriptor {
             component: "input-menu",
             label: "Jefe directo",
             optionsSource: `${API_BASE}/employees?as=options`,
+          },
+          {
+            name: "user_id",
+            component: "input-text",
+            label: "Usuario plataforma (id NOX)",
+            placeholder: "Opcional — id de usuario del núcleo",
           },
           {
             name: "hired_at",

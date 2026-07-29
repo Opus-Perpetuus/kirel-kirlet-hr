@@ -10,6 +10,8 @@ export type Employee = {
   department_id: string | null;
   position_id: string | null;
   manager_id: string | null;
+  /** Optional platform (NOX) user id — not a SQLite FK across processes. */
+  user_id: string | null;
   hired_at: string | null;
   phone: string | null;
   rfc: string | null;
@@ -27,6 +29,7 @@ export type EmployeeInput = {
   department_id?: string | null;
   position_id?: string | null;
   manager_id?: string | null;
+  user_id?: string | null;
   hired_at?: string | null;
   phone?: string | null;
   rfc?: string | null;
@@ -68,6 +71,7 @@ export function normalize_employee_input(
     "department_id",
     "position_id",
     "manager_id",
+    "user_id",
     "hired_at",
     "phone",
     "rfc",
@@ -76,7 +80,7 @@ export function normalize_employee_input(
   ] as const) {
     if (b[key] !== undefined) {
       const v = b[key];
-      out[key] = v == null || v === "" ? null : String(v);
+      out[key] = v == null || v === "" ? null : String(v).trim() || null;
     }
   }
 

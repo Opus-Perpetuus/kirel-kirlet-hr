@@ -14,11 +14,10 @@ export function get_data_dir(): string {
   return process.env.DATA_DIR ?? "/data";
 }
 
+/** Demo seed when employees empty. Default on; set KIRLET_SEED_DEMO=0 to disable. */
 export function get_seed_demo(): boolean {
-  return (
-    process.env.KIRLET_SEED_DEMO === "1" ||
-    process.env.KIRLET_SEED_DEMO === "true"
-  );
+  const v = (process.env.KIRLET_SEED_DEMO ?? "1").toLowerCase();
+  return v !== "0" && v !== "false" && v !== "off";
 }
 
 export function get_gateway_secret(): string {
@@ -55,9 +54,7 @@ export const PORT = Number(process.env.PORT ?? 3000);
 export const KIRLET_TECHNICAL_ID =
   process.env.KIRLET_TECHNICAL_ID ?? "kirlet-hr";
 export const DATA_DIR = process.env.DATA_DIR ?? "/data";
-export const KIRLET_SEED_DEMO =
-  process.env.KIRLET_SEED_DEMO === "1" ||
-  process.env.KIRLET_SEED_DEMO === "true";
+export const KIRLET_SEED_DEMO = get_seed_demo();
 export const NOX_KIRLET_GATEWAY_SECRET =
   process.env.NOX_KIRLET_GATEWAY_SECRET ?? "";
 export const KIRLET_AUTH = (process.env.KIRLET_AUTH ?? "on").toLowerCase();

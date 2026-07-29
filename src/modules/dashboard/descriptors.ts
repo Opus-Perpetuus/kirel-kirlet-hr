@@ -5,7 +5,7 @@
 import type { NoxPageDescriptor } from "@opus-perpetuus/kirel-nox-kit";
 import { get_api_base, get_technical_id } from "../../config.ts";
 
-/** Classic dashboard: nox.stats + nox.table (not feature-shell). */
+/** Classic dashboard: nox.stats with live source + poll; summary table. */
 export function build_dashboard_page(): NoxPageDescriptor {
   const API_BASE = get_api_base();
   const technical_id = get_technical_id();
@@ -23,7 +23,7 @@ export function build_dashboard_page(): NoxPageDescriptor {
       component: "nox.page",
       props: {
         title: "Panel de RR.HH.",
-        subtitle: "Resumen operativo",
+        subtitle: "Resumen operativo (actualización automática)",
       },
       children: [
         {
@@ -33,6 +33,7 @@ export function build_dashboard_page(): NoxPageDescriptor {
               component: "nox.stats",
               props: {
                 source: `${API_BASE}/dashboard/stats`,
+                refreshIntervalMs: 10_000,
                 items: [
                   {
                     key: "empleados_activos",
@@ -46,18 +47,11 @@ export function build_dashboard_page(): NoxPageDescriptor {
                     key: "contratos_por_vencer_30d",
                     label: "Contratos por vencer (30 d)",
                   },
+                  {
+                    key: "contratos_vencidos",
+                    label: "Contratos vencidos",
+                  },
                 ],
-              },
-            },
-            {
-              component: "nox.table",
-              props: {
-                fillHeight: false,
-                columns: [
-                  { key: "metric", label: "Métrica" },
-                  { key: "value", label: "Valor" },
-                ],
-                source: `${API_BASE}/dashboard/stats`,
               },
             },
           ],

@@ -93,6 +93,7 @@ function row_to_employee(r: Record<string, unknown>): Employee {
     department_id: (r.department_id as string) ?? null,
     position_id: (r.position_id as string) ?? null,
     manager_id: (r.manager_id as string) ?? null,
+    user_id: (r.user_id as string) ?? null,
     hired_at: (r.hired_at as string) ?? null,
     phone: (r.phone as string) ?? null,
     rfc: (r.rfc as string) ?? null,
@@ -199,6 +200,7 @@ async function create(
       department_id?: string | null;
       position_id?: string | null;
       manager_id?: string | null;
+      user_id?: string | null;
       hired_at?: string | null;
       phone?: string | null;
       rfc?: string | null;
@@ -224,6 +226,7 @@ async function create(
       department_id: input.department_id ?? null,
       position_id: input.position_id ?? null,
       manager_id: input.manager_id ?? null,
+      user_id: input.user_id ?? null,
       hired_at: input.hired_at ?? today_iso(),
       phone: input.phone ?? null,
       rfc: input.rfc ?? null,
@@ -238,8 +241,8 @@ async function create(
       db.query(
         `INSERT INTO employees (
           id, name, full_name, email, department_id, position_id, manager_id,
-          hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          user_id, hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).run(
         row.id,
         row.name,
@@ -248,6 +251,7 @@ async function create(
         row.department_id,
         row.position_id,
         row.manager_id,
+        row.user_id,
         row.hired_at,
         row.phone,
         row.rfc,
@@ -326,6 +330,10 @@ async function patch_one(
         input.manager_id !== undefined
           ? (input.manager_id as string | null)
           : before.manager_id,
+      user_id:
+        input.user_id !== undefined
+          ? (input.user_id as string | null)
+          : before.user_id,
       hired_at:
         input.hired_at !== undefined
           ? (input.hired_at as string | null)
@@ -347,7 +355,7 @@ async function patch_one(
       db.query(
         `UPDATE employees SET
           name=?, full_name=?, email=?, department_id=?, position_id=?, manager_id=?,
-          hired_at=?, phone=?, rfc=?, curp=?, nss=?, is_active=?, updated_at=?
+          user_id=?, hired_at=?, phone=?, rfc=?, curp=?, nss=?, is_active=?, updated_at=?
          WHERE id=?`,
       ).run(
         updated.name,
@@ -356,6 +364,7 @@ async function patch_one(
         updated.department_id,
         updated.position_id,
         updated.manager_id,
+        updated.user_id,
         updated.hired_at,
         updated.phone,
         updated.rfc,
