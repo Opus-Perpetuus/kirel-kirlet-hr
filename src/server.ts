@@ -17,7 +17,11 @@ import {
 } from "./config.ts";
 import { init_db } from "./db.ts";
 import { json, not_found, error } from "./http.ts";
-import { resolve_identity } from "./auth.ts";
+import {
+  can_read_history,
+  require_access,
+  resolve_identity,
+} from "./auth.ts";
 import { build_hr_menu } from "./menu.ts";
 import {
   dispatch_module,
@@ -26,7 +30,6 @@ import {
 } from "./modules/registry.ts";
 import { seed_leave_types, seed_demo } from "./seed.ts";
 import { list_history } from "./history.ts";
-import { require_access } from "./auth.ts";
 import { join } from "node:path";
 
 // (o==================================================================o)
@@ -98,13 +101,15 @@ export async function handle_request(req: Request): Promise<Response> {
       });
     }
 
-    // History (cross-module)
+    // History (cross-module) — signed identity required; any module read grant
     if (path === "/history" && req.method === "GET") {
-      const denied = require_access(identity, "employees", "read");
-      // Allow history with any module read via employees as default, or skip when auth off
-      if (denied) {
-        status = denied.status;
-        return denied;
+      if (!can_read_history(identity)) {
+        status = 403;
+        return error(
+          "forbidden",
+          "missing grant to read history",
+          403,
+        );
       }
       const result = list_history({
         resource: url.searchParams.get("resource") ?? undefined,

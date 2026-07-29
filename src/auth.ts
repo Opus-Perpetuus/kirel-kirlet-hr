@@ -27,6 +27,22 @@ export function is_meta_path(path: string): boolean {
   return false;
 }
 
+/**
+ * History is JWT+signed-identity protected but not tied to a single module
+ * grant — any kirlet.hr.<module> read (or admin) may list history.
+ */
+export function can_read_history(identity: KirletIdentity | null): boolean {
+  if (is_auth_disabled()) return true;
+  if (!identity) return false;
+  if (identity.is_admin) return true;
+  return identity.grants.some(
+    (g) =>
+      g.r === true &&
+      (g.resource === "kirlet.hr.*" ||
+        g.resource.startsWith("kirlet.hr.")),
+  );
+}
+
 function dev_identity(): KirletIdentity {
   return {
     user_id: "dev",

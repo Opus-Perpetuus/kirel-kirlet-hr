@@ -13,7 +13,7 @@ import {
 import { close_db, init_db } from "./db.ts";
 import { seed_leave_types } from "./seed.ts";
 import { handle_request } from "./server.ts";
-import { is_meta_path } from "./auth.ts";
+import { can_read_history, is_meta_path } from "./auth.ts";
 
 const SECRET = "test-gateway-secret-hr-auth";
 
@@ -58,6 +58,35 @@ describe("auth", () => {
     expect(is_meta_path("/pages")).toBe(true);
     expect(is_meta_path("/pages/hr.employees")).toBe(true);
     expect(is_meta_path("/employees")).toBe(false);
+  });
+
+  test("can_read_history allows any kirlet.hr.* read grant", () => {
+    expect(
+      can_read_history({
+        user_id: "u",
+        email: "a@b.c",
+        is_admin: false,
+        kirlet_id: "kirlet-hr",
+        grants: [
+          {
+            resource: "kirlet.hr.leave",
+            c: false,
+            r: true,
+            u: false,
+            d: false,
+          },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      can_read_history({
+        user_id: "u",
+        email: "a@b.c",
+        is_admin: false,
+        kirlet_id: "kirlet-hr",
+        grants: [],
+      }),
+    ).toBe(false);
   });
 
   test("reject unsigned non-meta", async () => {
