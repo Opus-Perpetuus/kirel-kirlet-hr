@@ -33,6 +33,8 @@ module.exports = {
     // VERSION + manifest image, then pin sibling NOX DEFAULT_CATALOG (auto catalog sync).
     postbump:
       "node -e \"const fs=require('fs'); const v=require('./package.json').version; fs.writeFileSync('VERSION', v+'\\n'); fs.writeFileSync('IMAGE.txt', 'kyostenas/kirlet-hr:'+v+'\\n'); const m=JSON.parse(fs.readFileSync('manifest.json','utf8')); m.version=v; m.image='kyostenas/kirlet-hr:'+v; fs.writeFileSync('manifest.json', JSON.stringify(m,null,2)+'\\n');\" && bash scripts/sync-nox-catalog-pin.sh",
+    // Ensure VERSION/IMAGE.txt land in the release commit (not only package.json).
+    precommit: "git add VERSION IMAGE.txt manifest.json package.json",
   },
   header:
     "# Changelog\n\nKIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.\n",
