@@ -7,16 +7,36 @@ export type MenuItem = {
   label: string;
   order: number;
   realm: "internal" | "public";
-  pageId: string;
+  /** Leaf target. Omit on group parents that only carry `children`. */
+  pageId?: string;
   path?: string;
   permission?: string;
   /** Kirita registry icon id for NOX sidebar. */
   icon?: string;
+  /** Nested items — each top-level root becomes one sidebar group in NOX. */
+  children?: MenuItem[];
 };
 
-/** Menú es-MX con permisos e íconos por módulo. */
+/** Depth-first leaf nodes (items with a pageId / no children). */
+export function flatten_menu_leaves(items: readonly MenuItem[]): MenuItem[] {
+  const out: MenuItem[] = [];
+  for (const item of items) {
+    if (item.children?.length) {
+      out.push(...flatten_menu_leaves(item.children));
+    } else {
+      out.push(item);
+    }
+  }
+  return out;
+}
+
+/**
+ * Menú es-MX con permisos e íconos por módulo.
+ * Un solo grupo raíz: NOX mapea cada raíz a una sección del sidebar;
+ * una lista plana produciría un encabezado por página.
+ */
 export function build_hr_menu(): MenuItem[] {
-  return [
+  const leaves: MenuItem[] = [
     {
       id: "hr.dashboard",
       label: "Panel",
@@ -96,6 +116,16 @@ export function build_hr_menu(): MenuItem[] {
       path: "incidents",
       permission: "kirlet.hr.incidents.read",
       icon: "warning",
+    },
+  ];
+
+  return [
+    {
+      id: "hr.nav",
+      label: "RR.HH.",
+      order: 0,
+      realm: "internal",
+      children: leaves,
     },
   ];
 }
