@@ -2,6 +2,17 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+## [0.5.0](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.7...v0.5.0) (2026-07-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* kirlets no longer own a private domain DB; schema and persistence are owned by NOX Postgres via the kit.
+
+### Features
+
+* class modules + kit data client; drop private SQLite ([faf5c18](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/faf5c18c0b5780f613741a5aece29075d55e93fe))
+
 ### [0.4.7](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.6...v0.4.7) (2026-07-30)
 
 
