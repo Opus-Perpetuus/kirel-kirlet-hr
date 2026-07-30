@@ -5,8 +5,8 @@
   "version": "0.6.0",
   "image": "kyostenas/kirlet-hr:0.6.0",
   "compat": {
-    "nox": ">=0.3.0 <2.0.0",
-    "kit": "^0.3.0"
+    "nox": ">=0.4.0 <2.0.0",
+    "kit": "^0.4.0"
   },
   "api": {
     "basePath": "/api/m/kirlet-hr",
