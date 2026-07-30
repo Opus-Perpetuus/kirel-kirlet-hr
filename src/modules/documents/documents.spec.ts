@@ -1,39 +1,27 @@
-// (o==================================================================o)
-//   #region DOCUMENTS TESTS
-// (o-----------------------------------------------------------\/-----o)
-
-import { describe, expect, test, beforeAll, afterAll } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
-import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import {
-  reset_hr_app_for_tests,
-  close_hr_app,
-  get_data,
-} from "../../app/hr-app.ts";
-import { seed_leave_types } from "../../seed.ts";
-import { handle_request } from "../../server.ts";
-import { new_id, now_iso, today_iso } from "../../http.ts";
-import { validate_document_file, ALLOWED_MIME } from "./schema.ts";
-import { MAX_DOCUMENT_BYTES } from "../../config.ts";
+  create_kirlet_test_context,
+  new_id,
+  now_iso,
+  today_iso,
+  type KirletServer,
+} from "@opus-perpetuus/kirel-nox-kit";
+import { KIRLET } from "../../kirlet.ts";
+import {
+  ALLOWED_MIME,
+  MAX_DOCUMENT_BYTES,
+  validate_document_file,
+} from "./documents.service.ts";
 
 describe("documents", () => {
-  let data_dir: string;
+  let server: KirletServer;
   let employee_id: string;
 
-  beforeAll(async () => {
-    data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-docs-"));
-    process.env.DATA_DIR = data_dir;
-    process.env.KIRLET_AUTH = "off";
-    process.env.KIRLET_SEED_DEMO = "0";
-    reset_hr_app_for_tests();
-    await seed_leave_types();
-
-    const employees = new KirletRepository(get_data(), "employees");
+  beforeEach(async () => {
+    server = create_kirlet_test_context(KIRLET);
     const iso = now_iso();
     employee_id = new_id("emp");
-    await employees.insert({
+    await server.data.insert("employees", {
       id: employee_id,
       name: "Doc",
       full_name: "Doc User",
@@ -47,15 +35,14 @@ describe("documents", () => {
       rfc: null,
       curp: null,
       nss: null,
-      is_active: 1,
+      active: true,
       created_at: iso,
       updated_at: iso,
     });
   });
 
-  afterAll(() => {
-    close_hr_app();
-    rmSync(data_dir, { recursive: true, force: true });
+  afterEach(() => {
+    server.stop();
   });
 
   test("size cap → 413", () => {
@@ -104,8 +91,8 @@ describe("documents", () => {
       }),
     );
 
-    const up = await handle_request(
-      new Request("http://local/documents", {
+    const up = await server.fetch(
+      new Request("http://t/documents", {
         method: "POST",
         body: form,
       }),
@@ -116,14 +103,14 @@ describe("documents", () => {
     };
     expect(data.title).toBe("CURP scan");
 
-    const dl = await handle_request(
-      new Request(`http://local/documents/${data.id}/download`),
+    const dl = await server.fetch(
+      new Request(`http://t/documents/${data.id}/download`),
     );
     expect(dl.status).toBe(200);
     expect(dl.headers.get("content-type")).toContain("pdf");
 
-    const del = await handle_request(
-      new Request(`http://local/documents/${data.id}`, { method: "DELETE" }),
+    const del = await server.fetch(
+      new Request(`http://t/documents/${data.id}`, { method: "DELETE" }),
     );
     expect(del.status).toBe(200);
   });
@@ -137,13 +124,9 @@ describe("documents", () => {
       "file",
       new File([big], "huge.pdf", { type: "application/pdf" }),
     );
-    const res = await handle_request(
-      new Request("http://local/documents", { method: "POST", body: form }),
+    const res = await server.fetch(
+      new Request("http://t/documents", { method: "POST", body: form }),
     );
     expect(res.status).toBe(413);
   });
 });
-
-// (o-----------------------------------------------------------/\-----o)
-//   #endregion DOCUMENTS TESTS
-// (o==================================================================o)

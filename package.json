@@ -1,12 +1,13 @@
 {
   "name": "kirlet-hr",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "bun run src/server.ts",
     "dev": "bun --watch run src/server.ts",
     "test": "KIRLET_AUTH=off bun test --max-concurrency 1",
+    "manifest:emit": "bun run scripts/emit-manifest.ts",
     "release": "standard-version --config .versionrc.cjs",
     "release:dry": "standard-version --config .versionrc.cjs --dry-run",
     "release:first": "standard-version --config .versionrc.cjs --first-release",

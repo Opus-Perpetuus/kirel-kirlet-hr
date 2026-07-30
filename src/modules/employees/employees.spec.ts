@@ -1,49 +1,20 @@
-// (o==================================================================o)
-//   #region EMPLOYEES TESTS
-// (o-----------------------------------------------------------\/-----o)
-
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import {
-  describe,
-  expect,
-  test,
-  beforeAll,
-  afterAll,
-  beforeEach,
-} from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
-import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
-import {
-  reset_hr_app_for_tests,
-  close_hr_app,
-  get_data,
-} from "../../app/hr-app.ts";
-import { seed_leave_types } from "../../seed.ts";
-import { handle_request } from "../../server.ts";
-import { normalize_employee_input } from "./schema.ts";
+  create_kirlet_test_context,
+  type KirletServer,
+} from "@opus-perpetuus/kirel-nox-kit";
+import { KIRLET } from "../../kirlet.ts";
+import { normalize_employee_input } from "./employees.controller.ts";
 
 describe("employees", () => {
-  let data_dir: string;
+  let server: KirletServer;
 
-  beforeAll(async () => {
-    data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-emp-"));
-    process.env.DATA_DIR = data_dir;
-    process.env.KIRLET_AUTH = "off";
-    process.env.KIRLET_SEED_DEMO = "0";
-    reset_hr_app_for_tests();
-    await seed_leave_types();
+  beforeEach(() => {
+    server = create_kirlet_test_context(KIRLET);
   });
 
-  afterAll(() => {
-    close_hr_app();
-    rmSync(data_dir, { recursive: true, force: true });
-  });
-
-  beforeEach(async () => {
-    const repo = new KirletRepository(get_data(), "employees");
-    const rows = await repo.findMany({ limit: 10000 });
-    for (const r of rows) await repo.deleteById(r.id as string);
+  afterEach(() => {
+    server.stop();
   });
 
   test("normalize requires full_name/email", () => {
@@ -62,8 +33,8 @@ describe("employees", () => {
       ["Alpha", "alpha@t.local"],
       ["Beta", "beta@t.local"],
     ] as const) {
-      const res = await handle_request(
-        new Request("http://local/employees", {
+      const res = await server.fetch(
+        new Request("http://t/employees", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ full_name: name, email }),
@@ -72,28 +43,24 @@ describe("employees", () => {
       expect(res.status).toBe(201);
     }
 
-    const sorted = await handle_request(
-      new Request("http://local/employees?sort=name:asc&take=2&skip=0"),
+    const sorted = await server.fetch(
+      new Request("http://t/employees?sort=name:asc&take=2&skip=0"),
     );
     expect(sorted.status).toBe(200);
-    const body = (await sorted.json()) as {
-      data: Array<{ name: string }>;
-      total: number;
-    };
-    expect(body.total).toBe(3);
+    const body = (await sorted.json()) as { data: Array<{ name: string }> };
     expect(body.data.length).toBe(2);
     expect(body.data[0]!.name).toBe("Alpha");
 
-    const search = await handle_request(
-      new Request("http://local/employees?q=beta"),
+    const search = await server.fetch(
+      new Request("http://t/employees?q=beta"),
     );
-    const sbody = (await search.json()) as { data: unknown[]; total: number };
-    expect(sbody.total).toBe(1);
+    const sbody = (await search.json()) as { data: unknown[] };
+    expect(sbody.data.length).toBe(1);
   });
 
   test("soft-delete hides from default list", async () => {
-    const create = await handle_request(
-      new Request("http://local/employees", {
+    const create = await server.fetch(
+      new Request("http://t/employees", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -104,25 +71,25 @@ describe("employees", () => {
     );
     const { data } = (await create.json()) as { data: { id: string } };
 
-    const del = await handle_request(
-      new Request(`http://local/employees/${data.id}`, { method: "DELETE" }),
+    const del = await server.fetch(
+      new Request(`http://t/employees/${data.id}`, { method: "DELETE" }),
     );
     expect(del.status).toBe(200);
 
-    const list = await handle_request(new Request("http://local/employees"));
-    const body = (await list.json()) as { total: number };
-    expect(body.total).toBe(0);
+    const list = await server.fetch(new Request("http://t/employees"));
+    const body = (await list.json()) as { data: unknown[] };
+    expect(body.data.length).toBe(0);
 
-    const all = await handle_request(
-      new Request("http://local/employees?include_inactive=1"),
+    const all = await server.fetch(
+      new Request("http://t/employees?include_inactive=1"),
     );
-    const abody = (await all.json()) as { total: number };
-    expect(abody.total).toBe(1);
+    const abody = (await all.json()) as { data: unknown[] };
+    expect(abody.data.length).toBe(1);
   });
 
   test("duplicate email returns 409", async () => {
-    await handle_request(
-      new Request("http://local/employees", {
+    await server.fetch(
+      new Request("http://t/employees", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -131,8 +98,8 @@ describe("employees", () => {
         }),
       }),
     );
-    const again = await handle_request(
-      new Request("http://local/employees", {
+    const again = await server.fetch(
+      new Request("http://t/employees", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -145,8 +112,8 @@ describe("employees", () => {
   });
 
   test("create/read/update round-trips optional user_id link", async () => {
-    const create = await handle_request(
-      new Request("http://local/employees", {
+    const create = await server.fetch(
+      new Request("http://t/employees", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -162,14 +129,14 @@ describe("employees", () => {
     };
     expect(created.data.user_id).toBe("nox-user-abc");
 
-    const get = await handle_request(
-      new Request(`http://local/employees/${created.data.id}`),
+    const get = await server.fetch(
+      new Request(`http://t/employees/${created.data.id}`),
     );
     const got = (await get.json()) as { data: { user_id: string | null } };
     expect(got.data.user_id).toBe("nox-user-abc");
 
-    const patch = await handle_request(
-      new Request(`http://local/employees/${created.data.id}`, {
+    const patch = await server.fetch(
+      new Request(`http://t/employees/${created.data.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ user_id: null }),
@@ -180,24 +147,37 @@ describe("employees", () => {
       data: { user_id: string | null };
     };
     expect(patched.data.user_id).toBeNull();
+  });
 
-    const create_null = await handle_request(
-      new Request("http://local/employees", {
+  test("GET /employees/:id/team", async () => {
+    const mgr = await server.fetch(
+      new Request("http://t/employees", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          full_name: "No Link",
-          email: "nolink@t.local",
+          full_name: "Manager",
+          email: "mgr@t.local",
         }),
       }),
     );
-    const bare = (await create_null.json()) as {
-      data: { user_id: string | null };
-    };
-    expect(bare.data.user_id).toBeNull();
+    const manager = (await mgr.json()) as { data: { id: string } };
+    await server.fetch(
+      new Request("http://t/employees", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          full_name: "Report",
+          email: "rep@t.local",
+          manager_id: manager.data.id,
+        }),
+      }),
+    );
+    const team = await server.fetch(
+      new Request(`http://t/employees/${manager.data.id}/team`),
+    );
+    expect(team.status).toBe(200);
+    const body = (await team.json()) as { data: Array<{ email: string }> };
+    expect(body.data.length).toBe(1);
+    expect(body.data[0]!.email).toBe("rep@t.local");
   });
 });
-
-// (o-----------------------------------------------------------/\-----o)
-//   #endregion EMPLOYEES TESTS
-// (o==================================================================o)

@@ -2,43 +2,18 @@
   "id": "KIRLET-hr",
   "technicalId": "kirlet-hr",
   "name": "Recursos Humanos",
-  "version": "0.6.1",
-  "image": "kyostenas/kirlet-hr:0.6.1",
+  "version": "0.7.0",
+  "image": "kyostenas/kirlet-hr:0.7.0",
   "compat": {
-    "nox": ">=0.4.0 <2.0.0",
-    "kit": "^0.4.0"
+    "nox": ">=0.5.0",
+    "kit": "^0.5.0"
   },
   "api": {
-    "basePath": "/api/m/kirlet-hr",
+    "basePath": "/",
     "port": 3000,
     "healthPath": "/health"
   },
-  "storage": {
-    "domain": "shared-nox-postgres",
-    "files": true
-  },
-  "icon": {
-    "label": "RR.HH.",
-    "paths": [
-      {
-        "d": "M7 2h4v4h-4zM7 7h4v4h-4zM17 7h4v4h-4zM12 12h4v4h-4zM17 12h4v4h-4zM12 17h4v4h-4zM17 17h4v4h-4z",
-        "paint": "fill"
-      },
-      {
-        "d": "M13 8h2v2h-2z",
-        "paint": "fill"
-      }
-    ]
-  },
   "permissions": [
-    {
-      "id": "kirlet.hr.employees.read",
-      "label": "Ver empleados"
-    },
-    {
-      "id": "kirlet.hr.employees.write",
-      "label": "Editar empleados"
-    },
     {
       "id": "kirlet.hr.departments.read",
       "label": "Ver departamentos"
@@ -54,6 +29,14 @@
     {
       "id": "kirlet.hr.positions.write",
       "label": "Editar puestos"
+    },
+    {
+      "id": "kirlet.hr.employees.read",
+      "label": "Ver empleados"
+    },
+    {
+      "id": "kirlet.hr.employees.write",
+      "label": "Editar empleados"
     },
     {
       "id": "kirlet.hr.contracts.read",
@@ -80,20 +63,20 @@
       "label": "Editar documentos"
     },
     {
-      "id": "kirlet.hr.dashboard.read",
-      "label": "Ver panel"
-    },
-    {
-      "id": "kirlet.hr.dashboard.write",
-      "label": "Administrar panel"
-    },
-    {
       "id": "kirlet.hr.incidents.read",
       "label": "Ver incidencias"
     },
     {
       "id": "kirlet.hr.incidents.write",
       "label": "Registrar y gestionar incidencias"
+    },
+    {
+      "id": "kirlet.hr.dashboard.read",
+      "label": "Ver panel"
+    },
+    {
+      "id": "kirlet.hr.dashboard.write",
+      "label": "Administrar panel"
     }
   ],
   "menu": [
@@ -101,34 +84,12 @@
       "id": "hr.nav",
       "label": "RR.HH.",
       "order": 0,
-      "realm": "internal",
       "children": [
-        {
-          "id": "hr.dashboard",
-          "label": "Panel",
-          "order": 5,
-          "realm": "internal",
-          "pageId": "hr.dashboard",
-          "path": "dashboard",
-          "permission": "kirlet.hr.dashboard.read",
-          "icon": "dashboard"
-        },
-        {
-          "id": "hr.employees",
-          "label": "Empleados",
-          "order": 10,
-          "realm": "internal",
-          "pageId": "hr.employees",
-          "path": "employees",
-          "permission": "kirlet.hr.employees.read",
-          "icon": "users"
-        },
         {
           "id": "hr.departments",
           "label": "Departamentos",
-          "order": 20,
-          "realm": "internal",
           "pageId": "hr.departments",
+          "order": 20,
           "path": "departments",
           "permission": "kirlet.hr.departments.read",
           "icon": "building"
@@ -136,19 +97,26 @@
         {
           "id": "hr.positions",
           "label": "Puestos",
-          "order": 30,
-          "realm": "internal",
           "pageId": "hr.positions",
+          "order": 30,
           "path": "positions",
           "permission": "kirlet.hr.positions.read",
           "icon": "briefcase"
         },
         {
+          "id": "hr.employees",
+          "label": "Empleados",
+          "pageId": "hr.employees",
+          "order": 10,
+          "path": "employees",
+          "permission": "kirlet.hr.employees.read",
+          "icon": "users"
+        },
+        {
           "id": "hr.contracts",
           "label": "Contratos",
-          "order": 40,
-          "realm": "internal",
           "pageId": "hr.contracts",
+          "order": 40,
           "path": "contracts",
           "permission": "kirlet.hr.contracts.read",
           "icon": "document"
@@ -156,9 +124,8 @@
         {
           "id": "hr.leave-requests",
           "label": "Ausencias",
-          "order": 50,
-          "realm": "internal",
           "pageId": "hr.leave-requests",
+          "order": 50,
           "path": "leave-requests",
           "permission": "kirlet.hr.leave.read",
           "icon": "calendar"
@@ -166,9 +133,8 @@
         {
           "id": "hr.documents",
           "label": "Documentos",
-          "order": 60,
-          "realm": "internal",
           "pageId": "hr.documents",
+          "order": 60,
           "path": "documents",
           "permission": "kirlet.hr.documents.read",
           "icon": "attachment"
@@ -176,27 +142,25 @@
         {
           "id": "hr.incidents",
           "label": "Incidencias",
-          "order": 70,
-          "realm": "internal",
           "pageId": "hr.incidents",
+          "order": 70,
           "path": "incidents",
           "permission": "kirlet.hr.incidents.read",
           "icon": "warning"
+        },
+        {
+          "id": "hr.dashboard",
+          "label": "Panel",
+          "pageId": "hr.dashboard",
+          "order": 5,
+          "path": "dashboard",
+          "permission": "kirlet.hr.dashboard.read",
+          "icon": "dashboard"
         }
       ]
     }
   ],
   "pages": [
-    {
-      "id": "hr.dashboard",
-      "path": "dashboard",
-      "permission": "kirlet.hr.dashboard.read"
-    },
-    {
-      "id": "hr.employees",
-      "path": "employees",
-      "permission": "kirlet.hr.employees.read"
-    },
     {
       "id": "hr.departments",
       "path": "departments",
@@ -206,6 +170,11 @@
       "id": "hr.positions",
       "path": "positions",
       "permission": "kirlet.hr.positions.read"
+    },
+    {
+      "id": "hr.employees",
+      "path": "employees",
+      "permission": "kirlet.hr.employees.read"
     },
     {
       "id": "hr.contracts",
@@ -226,6 +195,41 @@
       "id": "hr.incidents",
       "path": "incidents",
       "permission": "kirlet.hr.incidents.read"
+    },
+    {
+      "id": "hr.dashboard",
+      "path": "dashboard",
+      "permission": "kirlet.hr.dashboard.read"
     }
-  ]
+  ],
+  "icon": {
+    "label": "RR.HH.",
+    "paths": [
+      {
+        "d": "M7 2h4v4h-4zM7 7h4v4h-4zM17 7h4v4h-4zM12 12h4v4h-4zM17 12h4v4h-4zM12 17h4v4h-4zM17 17h4v4h-4z",
+        "paint": "fill"
+      },
+      {
+        "d": "M13 8h2v2h-2z",
+        "paint": "fill"
+      }
+    ]
+  },
+  "storage": {
+    "domain": "shared-nox-postgres",
+    "files": true
+  },
+  "resources": {
+    "departments": "departments",
+    "positions": "positions",
+    "employees": "employees",
+    "contracts": "contracts",
+    "leave": "leave",
+    "leave-types": "leave",
+    "leave-requests": "leave",
+    "leave-balances": "leave",
+    "documents": "documents",
+    "incidents": "incidents",
+    "dashboard": "dashboard"
+  }
 }

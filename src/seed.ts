@@ -1,11 +1,9 @@
 // (o==================================================================o)
-//   #region SEED (kit repository — async)
+//   #region SEED (define_kirlet seed callback)
 // (o-----------------------------------------------------------\/-----o)
 
-import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
-import { get_data } from "./data/bootstrap.ts";
-import { HistoryService } from "./data/history.service.ts";
-import { new_id, now_iso, today_iso } from "./http.ts";
+import type { KirletDataClient, NoxServices } from "@opus-perpetuus/kirel-nox-kit";
+import { new_id, now_iso, today_iso } from "@opus-perpetuus/kirel-nox-kit";
 
 const LEAVE_TYPE_CATALOG = [
   { name: "vacaciones", paid: 1, max_days_per_year: 12 as number | null },
@@ -22,19 +20,20 @@ const LEAVE_TYPE_CATALOG = [
 ];
 
 /** Always ensure leave_types catalog exists (idempotent by name). */
-export async function seed_leave_types(): Promise<number> {
-  const types = new KirletRepository(get_data(), "leave_types");
+export async function seed_leave_types(
+  data: KirletDataClient,
+): Promise<number> {
   const iso = now_iso();
   let n = 0;
   for (const lt of LEAVE_TYPE_CATALOG) {
-    const existing = await types.findOne({ name: lt.name });
+    const existing = await data.findOne("leave_types", { name: lt.name });
     if (existing) continue;
-    await types.insert({
+    await data.insert("leave_types", {
       id: new_id("lt"),
       name: lt.name,
       paid: lt.paid,
       max_days_per_year: lt.max_days_per_year,
-      is_active: 1,
+      active: true,
       created_at: iso,
       updated_at: iso,
     });
@@ -44,53 +43,44 @@ export async function seed_leave_types(): Promise<number> {
 }
 
 /**
- * Demo seed: 2 departments + 2 employees.
- * Only when KIRLET_SEED_DEMO=1 and employees table empty.
+ * Full seed: leave types always; demo rows when employees empty.
  */
-export async function seed_demo(): Promise<{
-  departments: number;
-  employees: number;
-}> {
-  const data = get_data();
-  const employees = new KirletRepository(data, "employees");
-  const departments = new KirletRepository(data, "departments");
-  const leave_types = new KirletRepository(data, "leave_types");
-  const leave_balances = new KirletRepository(data, "leave_balances");
-  const leave_requests = new KirletRepository(data, "leave_requests");
-  const contracts = new KirletRepository(data, "contracts");
-  const incidents = new KirletRepository(data, "incidents");
-  const history = new HistoryService(data);
+export async function seed_demo(ctx: {
+  data: KirletDataClient;
+  nox: NoxServices;
+  technical_id: string;
+}): Promise<void> {
+  const { data, nox } = ctx;
+  await seed_leave_types(data);
 
-  const emp_count = await employees.count();
-  if (emp_count > 0) {
-    return { departments: 0, employees: 0 };
-  }
+  const emp_count = await data.count("employees");
+  if (emp_count > 0) return;
 
   const iso = now_iso();
   const today = today_iso();
 
   const dep_eng = new_id("dep");
   const dep_ops = new_id("dep");
-  await departments.insert({
+  await data.insert("departments", {
     id: dep_eng,
     name: "Ingeniería",
     description: "Desarrollo y producto",
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
-  await departments.insert({
+  await data.insert("departments", {
     id: dep_ops,
     name: "Operaciones",
     description: "Operaciones y soporte",
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
 
   const emp1 = new_id("emp");
   const emp2 = new_id("emp");
-  await employees.insert({
+  await data.insert("employees", {
     id: emp1,
     name: "Ada Lovelace",
     full_name: "Ada Lovelace",
@@ -104,11 +94,11 @@ export async function seed_demo(): Promise<{
     rfc: null,
     curp: null,
     nss: null,
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
-  await employees.insert({
+  await data.insert("employees", {
     id: emp2,
     name: "Grace Hopper",
     full_name: "Grace Hopper",
@@ -122,33 +112,31 @@ export async function seed_demo(): Promise<{
     rfc: null,
     curp: null,
     nss: null,
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
 
-  await history.append({
+  await nox.history.append({
     resource: "employees",
-    record_id: emp1,
     action: "create",
-    summary: "Empleado creado: Ada Lovelace",
+    entity_id: emp1,
+    actor_label: "seed",
     payload: { after: { id: emp1, email: "ada@example.com" } },
-    actor: "seed",
   });
-  await history.append({
+  await nox.history.append({
     resource: "employees",
-    record_id: emp2,
     action: "create",
-    summary: "Empleado creado: Grace Hopper",
+    entity_id: emp2,
+    actor_label: "seed",
     payload: { after: { id: emp2, email: "grace@example.com" } },
-    actor: "seed",
   });
 
-  const vac = await leave_types.findOne({ name: "vacaciones" });
+  const vac = await data.findOne("leave_types", { name: "vacaciones" });
   if (vac) {
     const year = new Date().getFullYear();
     for (const eid of [emp1, emp2]) {
-      await leave_balances.insert({
+      await data.insert("leave_balances", {
         id: new_id("lb"),
         employee_id: eid,
         leave_type_id: vac.id,
@@ -162,7 +150,7 @@ export async function seed_demo(): Promise<{
     const in_three_weeks = new Date();
     in_three_weeks.setDate(in_three_weeks.getDate() + 21);
     const d = (x: Date) => x.toISOString().slice(0, 10);
-    await leave_requests.insert({
+    await data.insert("leave_requests", {
       id: new_id("lr"),
       employee_id: emp2,
       leave_type_id: vac.id,
@@ -181,7 +169,7 @@ export async function seed_demo(): Promise<{
 
   const end = new Date();
   end.setDate(end.getDate() + 20);
-  await contracts.insert({
+  await data.insert("contracts", {
     id: new_id("ctr"),
     employee_id: emp1,
     type: "determinado",
@@ -197,9 +185,17 @@ export async function seed_demo(): Promise<{
   });
 
   const year = new Date().getFullYear();
-  await incidents.insert({
+  const folio1 = await nox.counters.next(`incidents-${year}`, {
+    prefix: `INC-${year}-`,
+    pad_length: 4,
+  });
+  const folio2 = await nox.counters.next(`incidents-${year}`, {
+    prefix: `INC-${year}-`,
+    pad_length: 4,
+  });
+  await data.insert("incidents", {
     id: new_id("inc"),
-    folio: `INC-${year}-0001`,
+    folio: folio1,
     title: "Resbalón en pasillo",
     description: "Piso mojado sin señalización",
     employee_id: emp1,
@@ -212,13 +208,13 @@ export async function seed_demo(): Promise<{
     assigned_to: null,
     resolution_note: null,
     closed_at: null,
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
-  await incidents.insert({
+  await data.insert("incidents", {
     id: new_id("inc"),
-    folio: `INC-${year}-0002`,
+    folio: folio2,
     title: "Ruido excesivo en área de trabajo",
     description: "Reporte de molestia acústica en el open space",
     employee_id: emp2,
@@ -231,12 +227,10 @@ export async function seed_demo(): Promise<{
     assigned_to: "RR.HH.",
     resolution_note: null,
     closed_at: null,
-    is_active: 1,
+    active: true,
     created_at: iso,
     updated_at: iso,
   });
-
-  return { departments: 2, employees: 2 };
 }
 
 // (o-----------------------------------------------------------/\-----o)
