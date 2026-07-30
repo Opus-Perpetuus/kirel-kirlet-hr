@@ -2,6 +2,13 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.4.7](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.6...v0.4.7) (2026-07-30)
+
+
+### Features
+
+* **employees:** select platform user via input-menu ([cfef50c](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/cfef50cb83621a844e8381100ae56b6ca885664e))
+
 ### [0.4.6](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.5...v0.4.6) (2026-07-29)
 
 
