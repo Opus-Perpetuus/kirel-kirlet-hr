@@ -11,7 +11,6 @@ import {
   get_port,
   get_technical_id,
   get_data_dir,
-  get_seed_demo,
   is_auth_disabled,
 } from "./config.ts";
 import { json, not_found, error } from "./http.ts";
@@ -23,9 +22,10 @@ import {
   close_hr_app,
   HR_SCHEMA,
 } from "./app/hr-app.ts";
-import { seed_leave_types, seed_demo } from "./seed.ts";
 import { list_history } from "./history.ts";
 import { join } from "node:path";
+import { resolve_data_mode } from "@opus-perpetuus/kirel-nox-kit";
+import { run_seed_once, seed_with_retry } from "./boot-seed.ts";
 
 // (o==================================================================o)
 //   #region REQUEST HANDLER
@@ -48,12 +48,14 @@ export async function handle_request(req: Request): Promise<Response> {
     actor = identity?.email ?? null;
 
     // Meta
+    // Process-up probe for NOX install (must not depend on domain tables).
     if (path === "/health") {
       status = 200;
       return json({
         status: "ok",
         service: get_technical_id(),
         ready: true,
+        data_mode: resolve_data_mode(),
         time: new Date().toISOString(),
       });
     }
@@ -66,9 +68,26 @@ export async function handle_request(req: Request): Promise<Response> {
       });
     }
 
+    // Declarative schema for NOX DDL apply — no DB access required.
     if (path === "/schema") {
       status = 200;
       return json(HR_SCHEMA);
+    }
+
+    // Optional re-seed after NOX applies schema (gateway hop or auth-off).
+    if (path === "/seed" && req.method === "POST") {
+      try {
+        const result = await run_seed_once();
+        status = 200;
+        return json({ ok: true, ...result });
+      } catch (err) {
+        status = 503;
+        return error(
+          "seed_unavailable",
+          err instanceof Error ? err.message : String(err),
+          503,
+        );
+      }
     }
 
     if (path === "/menu") {
@@ -175,23 +194,25 @@ export async function handle_request(req: Request): Promise<Response> {
 //   #region BOOT
 // (o-----------------------------------------------------------\/-----o)
 
+/**
+ * Boot order (critical for Docker + shared NOX Postgres):
+ * 1. init kit client (HTTP or Memory) — no domain tables required
+ * 2. listen → /health + /schema available for NOX
+ * 3. seed in background with retries (HTTP waits until NOX applied DDL)
+ *
+ * Never await seed before listen when NOX_DATA_URL is set — that deadlocks
+ * install (NOX waits health; seed waits tables; tables wait schema-after-health).
+ */
 export async function boot(opts?: { listen?: boolean }) {
   init_hr_app();
-  await seed_leave_types();
-  if (get_seed_demo()) {
-    const demo = await seed_demo();
-    if (demo.employees > 0) {
-      console.log(
-        JSON.stringify({
-          level: "info",
-          msg: "seed_demo",
-          ...demo,
-        }),
-      );
-    }
-  }
 
-  if (opts?.listen === false) return null;
+  if (opts?.listen === false) {
+    // Test path: memory client already has tables — seed immediately.
+    if (resolve_data_mode() === "memory") {
+      await seed_with_retry({ attempts: 1 });
+    }
+    return null;
+  }
 
   const server = Bun.serve({
     port: get_port(),
@@ -217,8 +238,12 @@ export async function boot(opts?: { listen?: boolean }) {
       data_dir: get_data_dir(),
       auth: is_auth_disabled() ? "off" : "on",
       storage: "shared-nox-postgres",
+      data_mode: resolve_data_mode(),
     }),
   );
+
+  // Deferred seed — do not block health/schema for NOX install.
+  void seed_with_retry();
   return server;
 }
 
