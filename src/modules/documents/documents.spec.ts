@@ -6,7 +6,12 @@ import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { close_db, init_db, get_db } from "../../db.ts";
+import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import {
+  reset_hr_app_for_tests,
+  close_hr_app,
+  get_data,
+} from "../../app/hr-app.ts";
 import { seed_leave_types } from "../../seed.ts";
 import { handle_request } from "../../server.ts";
 import { new_id, now_iso, today_iso } from "../../http.ts";
@@ -17,27 +22,39 @@ describe("documents", () => {
   let data_dir: string;
   let employee_id: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-docs-"));
     process.env.DATA_DIR = data_dir;
     process.env.KIRLET_AUTH = "off";
     process.env.KIRLET_SEED_DEMO = "0";
-    init_db(join(data_dir, "hr.db"));
-    seed_leave_types();
+    reset_hr_app_for_tests();
+    await seed_leave_types();
 
-    const db = get_db();
+    const employees = new KirletRepository(get_data(), "employees");
     const iso = now_iso();
     employee_id = new_id("emp");
-    db.query(
-      `INSERT INTO employees (
-        id, name, full_name, email, department_id, position_id, manager_id,
-        hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-      ) VALUES (?, 'Doc', 'Doc User', 'doc@t.local', NULL, NULL, NULL, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
-    ).run(employee_id, today_iso(), iso, iso);
+    await employees.insert({
+      id: employee_id,
+      name: "Doc",
+      full_name: "Doc User",
+      email: "doc@t.local",
+      department_id: null,
+      position_id: null,
+      manager_id: null,
+      user_id: null,
+      hired_at: today_iso(),
+      phone: null,
+      rfc: null,
+      curp: null,
+      nss: null,
+      is_active: 1,
+      created_at: iso,
+      updated_at: iso,
+    });
   });
 
   afterAll(() => {
-    close_db();
+    close_hr_app();
     rmSync(data_dir, { recursive: true, force: true });
   });
 

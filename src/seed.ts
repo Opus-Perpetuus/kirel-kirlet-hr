@@ -1,32 +1,43 @@
 // (o==================================================================o)
-//   #region SEED
+//   #region SEED (kit repository — async)
 // (o-----------------------------------------------------------\/-----o)
 
-import { get_db } from "./db.ts";
+import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import { get_data } from "./data/bootstrap.ts";
+import { HistoryService } from "./data/history.service.ts";
 import { new_id, now_iso, today_iso } from "./http.ts";
-import { append_history } from "./history.ts";
 
 const LEAVE_TYPE_CATALOG = [
-  { name: "vacaciones", paid: 1, max_days_per_year: 12 },
-  { name: "permiso sin goce", paid: 0, max_days_per_year: null as number | null },
-  { name: "incapacidad", paid: 1, max_days_per_year: null as number | null },
+  { name: "vacaciones", paid: 1, max_days_per_year: 12 as number | null },
+  {
+    name: "permiso sin goce",
+    paid: 0,
+    max_days_per_year: null as number | null,
+  },
+  {
+    name: "incapacidad",
+    paid: 1,
+    max_days_per_year: null as number | null,
+  },
 ];
 
 /** Always ensure leave_types catalog exists (idempotent by name). */
-export function seed_leave_types(): number {
-  const db = get_db();
+export async function seed_leave_types(): Promise<number> {
+  const types = new KirletRepository(get_data(), "leave_types");
   const iso = now_iso();
   let n = 0;
   for (const lt of LEAVE_TYPE_CATALOG) {
-    const existing = db
-      .query(`SELECT id FROM leave_types WHERE name = ?`)
-      .get(lt.name) as { id: string } | null;
+    const existing = await types.findOne({ name: lt.name });
     if (existing) continue;
-    const id = new_id("lt");
-    db.query(
-      `INSERT INTO leave_types (id, name, paid, max_days_per_year, is_active, created_at, updated_at)
-       VALUES (?, ?, ?, ?, 1, ?, ?)`,
-    ).run(id, lt.name, lt.paid, lt.max_days_per_year, iso, iso);
+    await types.insert({
+      id: new_id("lt"),
+      name: lt.name,
+      paid: lt.paid,
+      max_days_per_year: lt.max_days_per_year,
+      is_active: 1,
+      created_at: iso,
+      updated_at: iso,
+    });
     n++;
   }
   return n;
@@ -36,11 +47,21 @@ export function seed_leave_types(): number {
  * Demo seed: 2 departments + 2 employees.
  * Only when KIRLET_SEED_DEMO=1 and employees table empty.
  */
-export function seed_demo(): { departments: number; employees: number } {
-  const db = get_db();
-  const emp_count = (
-    db.query(`SELECT COUNT(*) AS c FROM employees`).get() as { c: number }
-  ).c;
+export async function seed_demo(): Promise<{
+  departments: number;
+  employees: number;
+}> {
+  const data = get_data();
+  const employees = new KirletRepository(data, "employees");
+  const departments = new KirletRepository(data, "departments");
+  const leave_types = new KirletRepository(data, "leave_types");
+  const leave_balances = new KirletRepository(data, "leave_balances");
+  const leave_requests = new KirletRepository(data, "leave_requests");
+  const contracts = new KirletRepository(data, "contracts");
+  const incidents = new KirletRepository(data, "incidents");
+  const history = new HistoryService(data);
+
+  const emp_count = await employees.count();
   if (emp_count > 0) {
     return { departments: 0, employees: 0 };
   }
@@ -50,51 +71,63 @@ export function seed_demo(): { departments: number; employees: number } {
 
   const dep_eng = new_id("dep");
   const dep_ops = new_id("dep");
-  db.query(
-    `INSERT INTO departments (id, name, description, is_active, created_at, updated_at)
-     VALUES (?, ?, ?, 1, ?, ?)`,
-  ).run(dep_eng, "Ingeniería", "Desarrollo y producto", iso, iso);
-  db.query(
-    `INSERT INTO departments (id, name, description, is_active, created_at, updated_at)
-     VALUES (?, ?, ?, 1, ?, ?)`,
-  ).run(dep_ops, "Operaciones", "Operaciones y soporte", iso, iso);
+  await departments.insert({
+    id: dep_eng,
+    name: "Ingeniería",
+    description: "Desarrollo y producto",
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
+  await departments.insert({
+    id: dep_ops,
+    name: "Operaciones",
+    description: "Operaciones y soporte",
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
 
   const emp1 = new_id("emp");
   const emp2 = new_id("emp");
-  db.query(
-    `INSERT INTO employees (
-      id, name, full_name, email, department_id, position_id, manager_id,
-      user_id, hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, NULL, NULL, ?, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
-  ).run(
-    emp1,
-    "Ada Lovelace",
-    "Ada Lovelace",
-    "ada@example.com",
-    dep_eng,
-    "user-demo-ada",
-    today,
-    iso,
-    iso,
-  );
-  db.query(
-    `INSERT INTO employees (
-      id, name, full_name, email, department_id, position_id, manager_id,
-      user_id, hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
-  ).run(
-    emp2,
-    "Grace Hopper",
-    "Grace Hopper",
-    "grace@example.com",
-    dep_eng,
-    emp1,
-    today,
-    iso,
-    iso,
-  );
+  await employees.insert({
+    id: emp1,
+    name: "Ada Lovelace",
+    full_name: "Ada Lovelace",
+    email: "ada@example.com",
+    department_id: dep_eng,
+    position_id: null,
+    manager_id: null,
+    user_id: "user-demo-ada",
+    hired_at: today,
+    phone: null,
+    rfc: null,
+    curp: null,
+    nss: null,
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
+  await employees.insert({
+    id: emp2,
+    name: "Grace Hopper",
+    full_name: "Grace Hopper",
+    email: "grace@example.com",
+    department_id: dep_eng,
+    position_id: null,
+    manager_id: emp1,
+    user_id: null,
+    hired_at: today,
+    phone: null,
+    rfc: null,
+    curp: null,
+    nss: null,
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
 
-  append_history({
+  await history.append({
     resource: "employees",
     record_id: emp1,
     action: "create",
@@ -102,7 +135,7 @@ export function seed_demo(): { departments: number; employees: number } {
     payload: { after: { id: emp1, email: "ada@example.com" } },
     actor: "seed",
   });
-  append_history({
+  await history.append({
     resource: "employees",
     record_id: emp2,
     action: "create",
@@ -111,91 +144,97 @@ export function seed_demo(): { departments: number; employees: number } {
     actor: "seed",
   });
 
-  // Demo balances for vacaciones
-  const vac = db
-    .query(`SELECT id FROM leave_types WHERE name = 'vacaciones'`)
-    .get() as { id: string } | null;
+  const vac = await leave_types.findOne({ name: "vacaciones" });
   if (vac) {
     const year = new Date().getFullYear();
     for (const eid of [emp1, emp2]) {
-      db.query(
-        `INSERT INTO leave_balances (id, employee_id, leave_type_id, year, entitled_days, used_days)
-         VALUES (?, ?, ?, ?, 12, 0)`,
-      ).run(new_id("lb"), eid, vac.id, year);
+      await leave_balances.insert({
+        id: new_id("lb"),
+        employee_id: eid,
+        leave_type_id: vac.id,
+        year,
+        entitled_days: 12,
+        used_days: 0,
+      });
     }
-    // Pending leave so the panel is not all zeros
     const in_two_weeks = new Date();
     in_two_weeks.setDate(in_two_weeks.getDate() + 14);
     const in_three_weeks = new Date();
     in_three_weeks.setDate(in_three_weeks.getDate() + 21);
     const d = (x: Date) => x.toISOString().slice(0, 10);
-    db.query(
-      `INSERT INTO leave_requests (
-         id, employee_id, leave_type_id, start_date, end_date, days, reason,
-         status, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, 5, 'Vacaciones demo', 'pendiente', ?, ?)`,
-    ).run(
-      new_id("lr"),
-      emp2,
-      vac.id,
-      d(in_two_weeks),
-      d(in_three_weeks),
-      iso,
-      iso,
-    );
+    await leave_requests.insert({
+      id: new_id("lr"),
+      employee_id: emp2,
+      leave_type_id: vac.id,
+      start_date: d(in_two_weeks),
+      end_date: d(in_three_weeks),
+      days: 5,
+      reason: "Vacaciones demo",
+      status: "pendiente",
+      decided_by: null,
+      decided_at: null,
+      decision_note: null,
+      created_at: iso,
+      updated_at: iso,
+    });
   }
 
-  // Contract expiring within 30d for dashboard metric
   const end = new Date();
   end.setDate(end.getDate() + 20);
-  db.query(
-    `INSERT INTO contracts (
-       id, employee_id, type, start_date, end_date, salary, currency, schedule,
-       status, notes, created_at, updated_at
-     ) VALUES (?, ?, 'determinado', ?, ?, 45000, 'MXN', 'completa', 'activo', 'Demo seed', ?, ?)`,
-  ).run(
-    new_id("ctr"),
-    emp1,
-    today,
-    end.toISOString().slice(0, 10),
-    iso,
-    iso,
-  );
+  await contracts.insert({
+    id: new_id("ctr"),
+    employee_id: emp1,
+    type: "determinado",
+    start_date: today,
+    end_date: end.toISOString().slice(0, 10),
+    salary: 45000,
+    currency: "MXN",
+    schedule: "completa",
+    status: "activo",
+    notes: "Demo seed",
+    created_at: iso,
+    updated_at: iso,
+  });
 
-  // Demo incidents for registro de incidencias
   const year = new Date().getFullYear();
-  db.query(
-    `INSERT INTO incidents (
-       id, folio, title, description, employee_id, type, severity, status,
-       occurred_at, location, reported_by, assigned_to, resolution_note,
-       closed_at, is_active, created_at, updated_at
-     ) VALUES (?, ?, ?, ?, ?, 'accidente', 'media', 'abierta', ?, 'Planta demo', 'seed', NULL, NULL, NULL, 1, ?, ?)`,
-  ).run(
-    new_id("inc"),
-    `INC-${year}-0001`,
-    "Resbalón en pasillo",
-    "Piso mojado sin señalización",
-    emp1,
-    today,
-    iso,
-    iso,
-  );
-  db.query(
-    `INSERT INTO incidents (
-       id, folio, title, description, employee_id, type, severity, status,
-       occurred_at, location, reported_by, assigned_to, resolution_note,
-       closed_at, is_active, created_at, updated_at
-     ) VALUES (?, ?, ?, ?, ?, 'queja', 'baja', 'en_revision', ?, 'Oficinas', 'seed', 'RR.HH.', NULL, NULL, 1, ?, ?)`,
-  ).run(
-    new_id("inc"),
-    `INC-${year}-0002`,
-    "Ruido excesivo en área de trabajo",
-    "Reporte de molestia acústica en el open space",
-    emp2,
-    today,
-    iso,
-    iso,
-  );
+  await incidents.insert({
+    id: new_id("inc"),
+    folio: `INC-${year}-0001`,
+    title: "Resbalón en pasillo",
+    description: "Piso mojado sin señalización",
+    employee_id: emp1,
+    type: "accidente",
+    severity: "media",
+    status: "abierta",
+    occurred_at: today,
+    location: "Planta demo",
+    reported_by: "seed",
+    assigned_to: null,
+    resolution_note: null,
+    closed_at: null,
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
+  await incidents.insert({
+    id: new_id("inc"),
+    folio: `INC-${year}-0002`,
+    title: "Ruido excesivo en área de trabajo",
+    description: "Reporte de molestia acústica en el open space",
+    employee_id: emp2,
+    type: "queja",
+    severity: "baja",
+    status: "en_revision",
+    occurred_at: today,
+    location: "Oficinas",
+    reported_by: "seed",
+    assigned_to: "RR.HH.",
+    resolution_note: null,
+    closed_at: null,
+    is_active: 1,
+    created_at: iso,
+    updated_at: iso,
+  });
 
   return { departments: 2, employees: 2 };
 }

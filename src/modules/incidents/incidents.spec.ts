@@ -13,7 +13,12 @@ import {
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { close_db, init_db, get_db } from "../../db.ts";
+import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import {
+  reset_hr_app_for_tests,
+  close_hr_app,
+  get_data,
+} from "../../app/hr-app.ts";
 import { handle_request } from "../../server.ts";
 import { new_id, now_iso, today_iso } from "../../http.ts";
 import {
@@ -25,31 +30,45 @@ describe("incidents (shipped)", () => {
   let data_dir: string;
   let employee_id: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-inc-"));
     process.env.DATA_DIR = data_dir;
     process.env.KIRLET_AUTH = "off";
     process.env.KIRLET_SEED_DEMO = "0";
-    init_db(join(data_dir, "hr.db"));
+    reset_hr_app_for_tests();
 
-    const db = get_db();
+    const employees = new KirletRepository(get_data(), "employees");
     const iso = now_iso();
     employee_id = new_id("emp");
-    db.query(
-      `INSERT INTO employees (
-        id, name, full_name, email, department_id, position_id, manager_id,
-        hired_at, phone, rfc, curp, nss, is_active, created_at, updated_at
-      ) VALUES (?, 'Ada', 'Ada Lovelace', 'ada-inc@t.local', NULL, NULL, NULL, ?, NULL, NULL, NULL, NULL, 1, ?, ?)`,
-    ).run(employee_id, today_iso(), iso, iso);
+    await employees.insert({
+      id: employee_id,
+      name: "Ada",
+      full_name: "Ada Lovelace",
+      email: "ada-inc@t.local",
+      department_id: null,
+      position_id: null,
+      manager_id: null,
+      user_id: null,
+      hired_at: today_iso(),
+      phone: null,
+      rfc: null,
+      curp: null,
+      nss: null,
+      is_active: 1,
+      created_at: iso,
+      updated_at: iso,
+    });
   });
 
   afterAll(() => {
-    close_db();
+    close_hr_app();
     rmSync(data_dir, { recursive: true, force: true });
   });
 
-  beforeEach(() => {
-    get_db().exec(`DELETE FROM incidents`);
+  beforeEach(async () => {
+    const incidents = new KirletRepository(get_data(), "incidents");
+    const rows = await incidents.findMany({ limit: 10000 });
+    for (const r of rows) await incidents.deleteById(r.id as string);
   });
 
   test("normalize requires title and validates type/severity/status", () => {
@@ -176,9 +195,9 @@ describe("incidents (shipped)", () => {
       }),
     );
     expect(review.status).toBe(200);
-    expect(((await review.json()) as { data: { status: string } }).data.status).toBe(
-      "en_revision",
-    );
+    expect(
+      ((await review.json()) as { data: { status: string } }).data.status,
+    ).toBe("en_revision");
 
     const start = await handle_request(
       new Request(`http://local/incidents/${data.id}/start`, {

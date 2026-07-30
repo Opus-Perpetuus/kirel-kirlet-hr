@@ -1,40 +1,34 @@
 // (o==================================================================o)
-//   #region DB TESTS
+//   #region DATA CLIENT / SCHEMA TESTS
 // (o-----------------------------------------------------------\/-----o)
 
-import { describe, expect, test, beforeAll, afterAll } from "bun:test";
+import { describe, expect, test, afterAll } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { close_db, init_db, run_migrations, get_db } from "./db.ts";
+import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import { HR_SCHEMA } from "./schema/hr.schema.ts";
+import {
+  reset_hr_app_for_tests,
+  close_hr_app,
+  get_data,
+} from "./app/hr-app.ts";
 
-describe("db migrations", () => {
+describe("kit data bootstrap + schema", () => {
   let data_dir: string;
-  let db_path: string;
-
-  beforeAll(() => {
-    data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-db-"));
-    db_path = join(data_dir, "hr.db");
-    process.env.DATA_DIR = data_dir;
-  });
 
   afterAll(() => {
-    close_db();
-    rmSync(data_dir, { recursive: true, force: true });
+    close_hr_app();
+    if (data_dir) rmSync(data_dir, { recursive: true, force: true });
   });
 
-  test("migrations apply once on temp DATA_DIR", () => {
-    init_db(db_path);
-    const first = run_migrations();
-    // 001 already applied by init_db
-    expect(first).toEqual([]);
+  test("HR_SCHEMA declares domain tables (no private SQLite)", () => {
+    data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-data-"));
+    process.env.DATA_DIR = data_dir;
+    const mem = reset_hr_app_for_tests();
+    expect(mem).toBeTruthy();
 
-    const tables = get_db()
-      .query(
-        `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`,
-      )
-      .all() as Array<{ name: string }>;
-    const names = tables.map((t) => t.name);
+    const names = HR_SCHEMA.tables.map((t) => t.name);
     expect(names).toContain("employees");
     expect(names).toContain("departments");
     expect(names).toContain("positions");
@@ -44,21 +38,13 @@ describe("db migrations", () => {
     expect(names).toContain("leave_balances");
     expect(names).toContain("documents");
     expect(names).toContain("history");
-    expect(names).toContain("_migrations");
+    expect(names).toContain("incidents");
 
-    const applied = get_db()
-      .query(`SELECT name FROM _migrations`)
-      .all() as Array<{ name: string }>;
-    expect(applied.some((a) => a.name === "001_init.sql")).toBe(true);
-
-    // Second open: still once
-    close_db();
-    init_db(db_path);
-    const second = run_migrations();
-    expect(second).toEqual([]);
+    const repo = new KirletRepository(get_data(), "employees");
+    expect(typeof repo.findMany).toBe("function");
   });
 });
 
 // (o-----------------------------------------------------------/\-----o)
-//   #endregion DB TESTS
+//   #endregion DATA CLIENT / SCHEMA TESTS
 // (o==================================================================o)

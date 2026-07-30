@@ -14,7 +14,8 @@
     "healthPath": "/health"
   },
   "storage": {
-    "data": true
+    "domain": "shared-nox-postgres",
+    "files": true
   },
   "icon": {
     "label": "RR.HH.",

@@ -1,8 +1,12 @@
 // (o==================================================================o)
-//   #region DASHBOARD STATS (pure queries)
+//   #region DASHBOARD STATS (kit repository — no SQL)
 // (o-----------------------------------------------------------\/-----o)
 
-import type { Database } from "bun:sqlite";
+import {
+  KirletRepository,
+  type KirletDataClient,
+} from "@opus-perpetuus/kirel-nox-kit";
+import { today_iso } from "../../http.ts";
 
 export type DashboardStats = {
   empleados_activos: number;
@@ -11,43 +15,51 @@ export type DashboardStats = {
   contratos_vencidos: number;
 };
 
-/** Real DB counts for the HR panel (shipped entry used by routes + tests). */
-export function compute_dashboard_stats(db: Database): DashboardStats {
-  const empleados_activos = (
-    db
-      .query(`SELECT COUNT(*) AS c FROM employees WHERE is_active = 1`)
-      .get() as { c: number }
-  ).c;
+function add_days(iso_date: string, days: number): string {
+  const d = new Date(`${iso_date}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
-  const solicitudes_pendientes = (
-    db
-      .query(
-        `SELECT COUNT(*) AS c FROM leave_requests WHERE status = 'pendiente'`,
-      )
-      .get() as { c: number }
-  ).c;
+/** Real counts for the HR panel (kit-mediated). */
+export async function compute_dashboard_stats(
+  data: KirletDataClient,
+): Promise<DashboardStats> {
+  const employees = new KirletRepository(data, "employees");
+  const leave_requests = new KirletRepository(data, "leave_requests");
+  const contracts = new KirletRepository(data, "contracts");
 
-  const contratos_por_vencer_30d = (
-    db
-      .query(
-        `SELECT COUNT(*) AS c FROM contracts
-         WHERE status = 'activo'
-           AND end_date IS NOT NULL
-           AND end_date >= date('now')
-           AND end_date <= date('now', '+30 days')`,
-      )
-      .get() as { c: number }
-  ).c;
+  const empleados_activos = await employees.count({ is_active: 1 });
+  const solicitudes_pendientes = await leave_requests.count({
+    status: "pendiente",
+  });
 
-  const contratos_vencidos = (
-    db
-      .query(
-        `SELECT COUNT(*) AS c FROM contracts
-         WHERE (status = 'vencido')
-            OR (status = 'activo' AND end_date IS NOT NULL AND end_date < date('now'))`,
-      )
-      .get() as { c: number }
-  ).c;
+  const today = today_iso();
+  const horizon = add_days(today, 30);
+  const all_contracts = await contracts.findMany({ limit: 10000 });
+
+  let contratos_por_vencer_30d = 0;
+  let contratos_vencidos = 0;
+  for (const c of all_contracts) {
+    const status = String(c.status);
+    const end_date = (c.end_date as string) ?? null;
+    const effective =
+      status === "activo" && end_date && end_date < today
+        ? "vencido"
+        : status;
+
+    if (effective === "vencido") {
+      contratos_vencidos++;
+    }
+    if (
+      status === "activo" &&
+      end_date != null &&
+      end_date >= today &&
+      end_date <= horizon
+    ) {
+      contratos_por_vencer_30d++;
+    }
+  }
 
   return {
     empleados_activos,
@@ -72,5 +84,5 @@ export function stats_as_rows(
 }
 
 // (o-----------------------------------------------------------/\-----o)
-//   #endregion DASHBOARD STATS (pure queries)
+//   #endregion DASHBOARD STATS
 // (o==================================================================o)

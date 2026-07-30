@@ -2,7 +2,7 @@
 //   #region AUTH TESTS
 // (o-----------------------------------------------------------\/-----o)
 
-import { describe, expect, test, beforeAll, afterAll, beforeEach } from "bun:test";
+import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -10,7 +10,7 @@ import {
   sign_kirlet_identity,
   type KirletIdentity,
 } from "@opus-perpetuus/kirel-nox-kit";
-import { close_db, init_db } from "./db.ts";
+import { reset_hr_app_for_tests, close_hr_app } from "./app/hr-app.ts";
 import { seed_leave_types } from "./seed.ts";
 import { handle_request } from "./server.ts";
 import { can_read_history, is_meta_path } from "./auth.ts";
@@ -33,18 +33,18 @@ function signed_headers(
 describe("auth", () => {
   let data_dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-auth-"));
     process.env.DATA_DIR = data_dir;
     process.env.NOX_KIRLET_GATEWAY_SECRET = SECRET;
     process.env.KIRLET_AUTH = "on";
     process.env.KIRLET_SEED_DEMO = "0";
-    init_db(join(data_dir, "hr.db"));
-    seed_leave_types();
+    reset_hr_app_for_tests();
+    await seed_leave_types();
   });
 
   afterAll(() => {
-    close_db();
+    close_hr_app();
     rmSync(data_dir, { recursive: true, force: true });
     delete process.env.NOX_KIRLET_GATEWAY_SECRET;
     process.env.KIRLET_AUTH = "off";
@@ -54,6 +54,7 @@ describe("auth", () => {
     expect(is_meta_path("/")).toBe(true);
     expect(is_meta_path("/health")).toBe(true);
     expect(is_meta_path("/manifest")).toBe(true);
+    expect(is_meta_path("/schema")).toBe(true);
     expect(is_meta_path("/menu")).toBe(true);
     expect(is_meta_path("/pages")).toBe(true);
     expect(is_meta_path("/pages/hr.employees")).toBe(true);
@@ -107,6 +108,9 @@ describe("auth", () => {
 
     const pages = await handle_request(new Request("http://local/pages"));
     expect(pages.status).toBe(200);
+
+    const schema = await handle_request(new Request("http://local/schema"));
+    expect(schema.status).toBe(200);
   });
 
   test("respect grants — read ok, write forbidden", async () => {

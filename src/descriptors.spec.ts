@@ -107,10 +107,12 @@ describe("manifest", () => {
     }
   });
 
-  test("compat and storage.data", () => {
+  test("compat and shared-nox-postgres storage", () => {
     expect(manifest.compat.nox).toBe(">=0.3.0 <2.0.0");
     expect(manifest.compat.kit).toBe("^0.3.0");
-    expect(manifest.storage?.data).toBe(true);
+    expect(manifest.storage?.domain).toBe("shared-nox-postgres");
+    expect(manifest.storage?.files).toBe(true);
+    expect(manifest.storage?.data).toBeUndefined();
   });
 });
 

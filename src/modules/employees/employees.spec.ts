@@ -2,11 +2,23 @@
 //   #region EMPLOYEES TESTS
 // (o-----------------------------------------------------------\/-----o)
 
-import { describe, expect, test, beforeAll, afterAll, beforeEach } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { close_db, init_db, get_db } from "../../db.ts";
+import { KirletRepository } from "@opus-perpetuus/kirel-nox-kit";
+import {
+  reset_hr_app_for_tests,
+  close_hr_app,
+  get_data,
+} from "../../app/hr-app.ts";
 import { seed_leave_types } from "../../seed.ts";
 import { handle_request } from "../../server.ts";
 import { normalize_employee_input } from "./schema.ts";
@@ -14,22 +26,24 @@ import { normalize_employee_input } from "./schema.ts";
 describe("employees", () => {
   let data_dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     data_dir = mkdtempSync(join(tmpdir(), "kirlet-hr-emp-"));
     process.env.DATA_DIR = data_dir;
     process.env.KIRLET_AUTH = "off";
     process.env.KIRLET_SEED_DEMO = "0";
-    init_db(join(data_dir, "hr.db"));
-    seed_leave_types();
+    reset_hr_app_for_tests();
+    await seed_leave_types();
   });
 
   afterAll(() => {
-    close_db();
+    close_hr_app();
     rmSync(data_dir, { recursive: true, force: true });
   });
 
-  beforeEach(() => {
-    get_db().exec(`DELETE FROM employees`);
+  beforeEach(async () => {
+    const repo = new KirletRepository(get_data(), "employees");
+    const rows = await repo.findMany({ limit: 10000 });
+    for (const r of rows) await repo.deleteById(r.id as string);
   });
 
   test("normalize requires full_name/email", () => {

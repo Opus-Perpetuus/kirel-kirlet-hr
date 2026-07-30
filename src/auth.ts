@@ -21,6 +21,7 @@ export function is_meta_path(path: string): boolean {
   if (path === "/" || path === "") return true;
   if (path === "/health") return true;
   if (path === "/manifest") return true;
+  if (path === "/schema") return true;
   if (path === "/menu") return true;
   if (path === "/pages") return true;
   if (path.startsWith("/pages/")) return true;

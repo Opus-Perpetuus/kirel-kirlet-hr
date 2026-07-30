@@ -42,14 +42,10 @@ export function get_files_dir(): string {
   return `${get_data_dir()}/files`;
 }
 
-export function get_db_path(): string {
-  return `${get_data_dir()}/hr.db`;
-}
-
 export const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024;
 export const HISTORY_CAP_PER_RESOURCE = 5000;
 
-// Back-compat constants (evaluated lazily via getters in consumers that import names)
+// Back-compat constants
 export const PORT = Number(process.env.PORT ?? 3000);
 export const KIRLET_TECHNICAL_ID =
   process.env.KIRLET_TECHNICAL_ID ?? "kirlet-hr";
@@ -61,8 +57,8 @@ export const KIRLET_AUTH = (process.env.KIRLET_AUTH ?? "on").toLowerCase();
 export const AUTH_DISABLED =
   KIRLET_AUTH === "off" || KIRLET_AUTH === "false" || KIRLET_AUTH === "0";
 export const API_BASE = `api://m/${KIRLET_TECHNICAL_ID}`;
+/** Blob/file storage only — domain tables are shared NOX Postgres via kit. */
 export const FILES_DIR = `${DATA_DIR}/files`;
-export const DB_PATH = `${DATA_DIR}/hr.db`;
 
 // (o-----------------------------------------------------------/\-----o)
 //   #endregion CONFIG

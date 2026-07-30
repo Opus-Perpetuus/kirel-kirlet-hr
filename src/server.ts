@@ -3,31 +3,26 @@
 // (o-----------------------------------------------------------\/-----o)
 
 /**
- * KIRLET-hr — modular Bun server + bun:sqlite under DATA_DIR.
- * Signed identity auth, full HR modules, feature-shell descriptors, manifest v1.
+ * KIRLET-hr — modular Bun server using kit data client (shared NOX Postgres
+ * in production; Memory store in tests / standalone). No private domain DB.
  */
 
 import {
   get_port,
   get_technical_id,
   get_data_dir,
-  get_db_path,
   get_seed_demo,
   is_auth_disabled,
 } from "./config.ts";
-import { init_db } from "./db.ts";
 import { json, not_found, error } from "./http.ts";
-import {
-  can_read_history,
-  require_access,
-  resolve_identity,
-} from "./auth.ts";
+import { can_read_history, resolve_identity } from "./auth.ts";
 import { build_hr_menu } from "./menu.ts";
 import {
-  dispatch_module,
-  get_page,
-  list_page_index,
-} from "./modules/registry.ts";
+  get_hr_app,
+  init_hr_app,
+  close_hr_app,
+  HR_SCHEMA,
+} from "./app/hr-app.ts";
 import { seed_leave_types, seed_demo } from "./seed.ts";
 import { list_history } from "./history.ts";
 import { join } from "node:path";
@@ -71,19 +66,32 @@ export async function handle_request(req: Request): Promise<Response> {
       });
     }
 
+    if (path === "/schema") {
+      status = 200;
+      return json(HR_SCHEMA);
+    }
+
     if (path === "/menu") {
       status = 200;
       return json({ data: build_hr_menu() });
     }
 
+    const app = get_hr_app();
+
     if (path === "/pages") {
       status = 200;
-      return json({ data: list_page_index() });
+      return json({
+        data: app.list_pages().map(({ id, path: p, permission }) => ({
+          id,
+          path: p,
+          permission,
+        })),
+      });
     }
 
     if (path.startsWith("/pages/")) {
       const id = path.slice("/pages/".length);
-      const page = get_page(id);
+      const page = app.get_page(id);
       if (!page) {
         status = 404;
         return not_found(path);
@@ -97,7 +105,7 @@ export async function handle_request(req: Request): Promise<Response> {
       return json({
         service: get_technical_id(),
         message:
-          "KIRLET-hr — /health, /manifest, /menu, /pages, módulos RR.HH.",
+          "KIRLET-hr — /health, /manifest, /schema, /menu, /pages, módulos RR.HH.",
         menu: build_hr_menu(),
         auth: is_auth_disabled() ? "off" : "on",
       });
@@ -107,13 +115,9 @@ export async function handle_request(req: Request): Promise<Response> {
     if (path === "/history" && req.method === "GET") {
       if (!can_read_history(identity)) {
         status = 403;
-        return error(
-          "forbidden",
-          "missing grant to read history",
-          403,
-        );
+        return error("forbidden", "missing grant to read history", 403);
       }
-      const result = list_history({
+      const result = await list_history({
         resource: url.searchParams.get("resource") ?? undefined,
         record_id: url.searchParams.get("record_id") ?? undefined,
         take: Number(url.searchParams.get("take") ?? 100) || 100,
@@ -123,7 +127,7 @@ export async function handle_request(req: Request): Promise<Response> {
       return json(result);
     }
 
-    const module_res = await dispatch_module(req, path, url, identity);
+    const module_res = await app.dispatch({ req, path, url, identity });
     if (module_res) {
       status = module_res.status;
       return module_res;
@@ -171,12 +175,11 @@ export async function handle_request(req: Request): Promise<Response> {
 //   #region BOOT
 // (o-----------------------------------------------------------\/-----o)
 
-export function boot(opts?: { db_path?: string; listen?: boolean }) {
-  const db_path = opts?.db_path ?? get_db_path();
-  init_db(db_path);
-  seed_leave_types();
+export async function boot(opts?: { listen?: boolean }) {
+  init_hr_app();
+  await seed_leave_types();
   if (get_seed_demo()) {
-    const demo = seed_demo();
+    const demo = await seed_demo();
     if (demo.employees > 0) {
       console.log(
         JSON.stringify({
@@ -213,14 +216,17 @@ export function boot(opts?: { db_path?: string; listen?: boolean }) {
       port: server.port,
       data_dir: get_data_dir(),
       auth: is_auth_disabled() ? "off" : "on",
+      storage: "shared-nox-postgres",
     }),
   );
   return server;
 }
 
 if (import.meta.main) {
-  boot();
+  await boot();
 }
+
+export { close_hr_app, init_hr_app };
 
 // (o-----------------------------------------------------------/\-----o)
 //   #endregion BOOT
