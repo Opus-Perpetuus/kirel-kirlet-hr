@@ -77,9 +77,10 @@ export function build_employees_page(): NoxPageDescriptor {
           },
           {
             name: "user_id",
-            component: "input-text",
-            label: "Usuario plataforma (id NOX)",
-            placeholder: "Opcional — id de usuario del núcleo",
+            component: "input-menu",
+            label: "Usuario de plataforma",
+            // Platform (NOX) staff/users list — value = user id, label = name/email.
+            optionsSource: "api://users",
           },
           {
             name: "hired_at",
