@@ -2,6 +2,17 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+## [0.6.0](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.5.0...v0.6.0) (2026-07-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **boot:** install path requires NOX schema-after-health; private DB boot removed.
+
+### Bug Fixes
+
+* **boot:** listen before seed so NOX can apply schema first ([2764da0](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/2764da084c8cd593f7302551db574a0365c37e09))
+
 ## [0.5.0](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.4.7...v0.5.0) (2026-07-30)
 
 
