@@ -2,6 +2,13 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.7.2](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.1...v0.7.2) (2026-08-01)
+
+
+### Bug Fixes
+
+* **release:** deriva version e image del package.json; test de no-drift del manifest ([89bff45](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/89bff45f399c9f1dd67371b7b93763ae36bbe063))
+
 ### [0.7.1](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.0...v0.7.1) (2026-07-31)
 
 ## [0.6.0](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.5.0...v0.6.0) (2026-07-30)
