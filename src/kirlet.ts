@@ -1,4 +1,5 @@
 import { define_kirlet } from "@opus-perpetuus/kirel-nox-kit";
+import pkg from "../package.json" with { type: "json" };
 import { contracts_module } from "./modules/contracts/contracts.routes.ts";
 import { dashboard_module } from "./modules/dashboard/dashboard.routes.ts";
 import { departments_module } from "./modules/departments/departments.routes.ts";
@@ -12,8 +13,11 @@ import { seed_demo } from "./seed.ts";
 export const KIRLET = define_kirlet({
   id: "KIRLET-hr",
   name: "Recursos Humanos",
-  version: "0.7.0",
-  image: "kyostenas/kirlet-hr:0.7.0",
+  // Derived from package.json so releases can't drift: standard-version bumps
+  // the package and the manifest follows (0.7.0 shipped while the real version
+  // was 0.7.1, and manifest:emit used to revert the manifest).
+  version: pkg.version,
+  image: `kyostenas/kirlet-hr:${pkg.version}`,
   compat: { nox: ">=0.5.0", kit: "^0.5.0" },
   storage_files: true,
   schema_version: 2,

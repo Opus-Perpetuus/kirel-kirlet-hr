@@ -6,6 +6,7 @@ import {
   validate_page_descriptor,
 } from "@opus-perpetuus/kirel-nox-kit";
 import { join } from "node:path";
+import pkg from "../package.json" with { type: "json" };
 import { KIRLET } from "./kirlet.ts";
 
 describe("kirlet-hr v2", () => {
@@ -22,7 +23,9 @@ describe("kirlet-hr v2", () => {
     expect(result.ok).toBe(true);
     expect(m.id).toBe("KIRLET-hr");
     expect(m.technicalId).toBe("kirlet-hr");
-    expect(m.version).toBe("0.7.0");
+    // Against package.json, not a literal: a pinned string is what let the
+    // manifest drift a whole release behind in the first place.
+    expect(m.version).toBe(pkg.version);
     expect(m.compat.nox).toBe(">=0.5.0");
     expect(m.compat.kit).toBe("^0.5.0");
     expect(m.storage?.domain).toBe("shared-nox-postgres");
