@@ -33,6 +33,12 @@ describe("kirlet-hr v2", () => {
     expect(m.resources?.employees).toBe("employees");
     expect(m.resources?.leave).toBe("leave");
     expect(m.resources?.["leave-requests"]).toBe("leave");
+    expect(m.widgets?.map((w) => w.id)).toEqual([
+      "headcount",
+      "leave",
+      "incidents",
+    ]);
+    expect(m.widgets?.every((w) => w.capability === "embedded")).toBe(true);
   });
 
   test("schema v2 without history table", () => {
