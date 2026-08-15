@@ -259,7 +259,7 @@
       "pageId": "hr.leave-requests",
       "permission": "kirlet.hr.leave.read",
       "bind": {
-        "resource": "leave",
+        "resource": "leave-requests",
         "metric": "count"
       }
     },

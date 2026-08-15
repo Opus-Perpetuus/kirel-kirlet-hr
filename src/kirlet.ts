@@ -62,7 +62,8 @@ export const KIRLET = define_kirlet({
       placement: "in-app",
       pageId: "hr.leave-requests",
       permission: "kirlet.hr.leave.read",
-      bind: { resource: "leave", metric: "count" },
+      // El host móvil cuenta por ruta de API, no por módulo: leave-requests.
+      bind: { resource: "leave-requests", metric: "count" },
     },
     {
       id: "incidents",
