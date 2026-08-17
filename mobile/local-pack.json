@@ -1,0 +1,576 @@
+{
+  "technicalId": "kirlet-hr",
+  "catalogId": "KIRLET-hr",
+  "name": "Recursos Humanos",
+  "version": "0.7.3",
+  "localFunctions": {
+    "widgets": [
+      {
+        "id": "headcount",
+        "title": "Plantilla",
+        "subtitle": "Empleados activos",
+        "icon": "users",
+        "size": "sm",
+        "capability": "embedded",
+        "placement": "both",
+        "pageId": "hr.employees",
+        "permission": "kirlet.hr.employees.read",
+        "bind": {
+          "resource": "employees",
+          "metric": "count"
+        }
+      },
+      {
+        "id": "leave",
+        "title": "Ausencias",
+        "subtitle": "Solicitudes abiertas",
+        "icon": "calendar",
+        "size": "sm",
+        "capability": "embedded",
+        "placement": "in-app",
+        "pageId": "hr.leave-requests",
+        "permission": "kirlet.hr.leave.read",
+        "bind": {
+          "resource": "leave-requests",
+          "metric": "count"
+        }
+      },
+      {
+        "id": "incidents",
+        "title": "Incidencias",
+        "subtitle": "Abiertas",
+        "icon": "warning",
+        "size": "md",
+        "capability": "embedded",
+        "placement": "both",
+        "pageId": "hr.incidents",
+        "permission": "kirlet.hr.incidents.read",
+        "bind": {
+          "resource": "incidents",
+          "metric": "count"
+        }
+      }
+    ],
+    "pages": {
+      "hr.employees": {
+        "id": "hr.employees",
+        "owner": "kirlet-hr",
+        "title": "Empleados",
+        "page": {
+          "component": "nox.feature-shell",
+          "props": {
+            "basePath": "employees",
+            "idKey": "id",
+            "nameKey": "name",
+            "view": {
+              "title": "Empleados",
+              "subtitle": "Plantilla y expediente de personal",
+              "pluralLabel": "empleados",
+              "singularLabel": "empleado",
+              "emptyTitle": "Sin empleados",
+              "emptyDescription": "Registra el primer empleado"
+            },
+            "data": {
+              "list": "api://m/kirlet-hr/employees",
+              "record": "api://m/kirlet-hr/employees/:id",
+              "create": {
+                "method": "POST",
+                "action": "api://m/kirlet-hr/employees"
+              },
+              "update": {
+                "method": "PATCH",
+                "action": "api://m/kirlet-hr/employees/:id"
+              },
+              "delete": {
+                "method": "DELETE",
+                "action": "api://m/kirlet-hr/employees/:id"
+              }
+            },
+            "table": {
+              "columns": [
+                {
+                  "key": "name",
+                  "label": "Nombre",
+                  "sortable": true,
+                  "priority": 1
+                },
+                {
+                  "key": "email",
+                  "label": "Correo",
+                  "sortable": true,
+                  "priority": 2
+                },
+                {
+                  "key": "user_id",
+                  "label": "Usuario",
+                  "sortable": false,
+                  "priority": 3
+                },
+                {
+                  "key": "hired_at",
+                  "label": "Alta",
+                  "sortable": true,
+                  "priority": 3
+                }
+              ],
+              "fillHeight": true,
+              "mobileCards": true,
+              "serverQuery": true
+            },
+            "form": {
+              "fields": [
+                {
+                  "name": "full_name",
+                  "component": "input-text",
+                  "label": "Nombre completo",
+                  "required": true
+                },
+                {
+                  "name": "email",
+                  "component": "input-text",
+                  "label": "Correo",
+                  "type": "email",
+                  "required": true
+                },
+                {
+                  "name": "department_id",
+                  "component": "input-menu",
+                  "label": "Departamento",
+                  "optionsSource": "api://m/kirlet-hr/departments?as=options"
+                },
+                {
+                  "name": "position_id",
+                  "component": "input-menu",
+                  "label": "Puesto",
+                  "optionsSource": "api://m/kirlet-hr/positions?as=options"
+                },
+                {
+                  "name": "manager_id",
+                  "component": "input-menu",
+                  "label": "Jefe directo",
+                  "optionsSource": "api://m/kirlet-hr/employees?as=options"
+                },
+                {
+                  "name": "user_id",
+                  "component": "input-menu",
+                  "label": "Usuario de plataforma",
+                  "optionsSource": "api://users"
+                },
+                {
+                  "name": "hired_at",
+                  "component": "input-date",
+                  "label": "Fecha de alta"
+                },
+                {
+                  "name": "phone",
+                  "component": "input-text",
+                  "label": "Teléfono",
+                  "type": "tel"
+                },
+                {
+                  "name": "rfc",
+                  "component": "input-text",
+                  "label": "RFC"
+                },
+                {
+                  "name": "curp",
+                  "component": "input-text",
+                  "label": "CURP"
+                },
+                {
+                  "name": "nss",
+                  "component": "input-text",
+                  "label": "NSS"
+                }
+              ]
+            },
+            "permission": "kirlet.hr.employees"
+          }
+        }
+      },
+      "hr.leave-requests": {
+        "id": "hr.leave-requests",
+        "owner": "kirlet-hr",
+        "title": "Ausencias",
+        "page": {
+          "component": "nox.feature-shell",
+          "props": {
+            "basePath": "leave-requests",
+            "idKey": "id",
+            "nameKey": "status",
+            "view": {
+              "title": "Ausencias",
+              "subtitle": "Solicitudes de vacaciones y permisos",
+              "pluralLabel": "solicitudes",
+              "singularLabel": "solicitud",
+              "emptyTitle": "Sin solicitudes",
+              "emptyDescription": "Crea la primera solicitud de ausencia"
+            },
+            "data": {
+              "list": "api://m/kirlet-hr/leave-requests",
+              "record": "api://m/kirlet-hr/leave-requests/:id",
+              "create": {
+                "method": "POST",
+                "action": "api://m/kirlet-hr/leave-requests"
+              },
+              "update": {
+                "method": "PATCH",
+                "action": "api://m/kirlet-hr/leave-requests/:id"
+              },
+              "delete": {
+                "method": "DELETE",
+                "action": "api://m/kirlet-hr/leave-requests/:id"
+              }
+            },
+            "table": {
+              "columns": [
+                {
+                  "key": "start_date",
+                  "label": "Inicio",
+                  "sortable": true,
+                  "priority": 1
+                },
+                {
+                  "key": "end_date",
+                  "label": "Fin",
+                  "sortable": true,
+                  "priority": 2
+                },
+                {
+                  "key": "days",
+                  "label": "Días",
+                  "sortable": true,
+                  "priority": 2
+                },
+                {
+                  "key": "status",
+                  "label": "Estado",
+                  "cell": "badge",
+                  "priority": 1
+                }
+              ],
+              "fillHeight": true,
+              "mobileCards": true,
+              "serverQuery": true
+            },
+            "form": {
+              "fields": [
+                {
+                  "name": "employee_id",
+                  "component": "input-menu",
+                  "label": "Empleado",
+                  "required": true,
+                  "optionsSource": "api://m/kirlet-hr/employees?as=options"
+                },
+                {
+                  "name": "leave_type_id",
+                  "component": "input-menu",
+                  "label": "Tipo de ausencia",
+                  "required": true,
+                  "optionsSource": "api://m/kirlet-hr/leave-types?as=options"
+                },
+                {
+                  "name": "start_date",
+                  "component": "input-date",
+                  "label": "Fecha de inicio",
+                  "required": true
+                },
+                {
+                  "name": "end_date",
+                  "component": "input-date",
+                  "label": "Fecha de fin",
+                  "required": true
+                },
+                {
+                  "name": "days",
+                  "component": "input-number",
+                  "label": "Días",
+                  "min": 0.5,
+                  "step": 0.5
+                },
+                {
+                  "name": "reason",
+                  "component": "input-textarea",
+                  "label": "Motivo"
+                }
+              ]
+            },
+            "headerActions": {
+              "detail": [
+                {
+                  "id": "approve",
+                  "label": "Aprobar",
+                  "variant": "primary",
+                  "confirm": "¿Aprobar esta solicitud?",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/leave-requests/:id/approve"
+                  },
+                  "refresh": "record"
+                },
+                {
+                  "id": "reject",
+                  "label": "Rechazar",
+                  "variant": "danger",
+                  "confirm": "¿Rechazar esta solicitud?",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/leave-requests/:id/reject"
+                  },
+                  "refresh": "record"
+                }
+              ]
+            },
+            "permission": "kirlet.hr.leave"
+          }
+        }
+      },
+      "hr.incidents": {
+        "id": "hr.incidents",
+        "owner": "kirlet-hr",
+        "title": "Incidencias",
+        "page": {
+          "component": "nox.feature-shell",
+          "props": {
+            "basePath": "incidents",
+            "idKey": "id",
+            "nameKey": "title",
+            "view": {
+              "title": "Incidencias",
+              "subtitle": "Registro de accidentes, quejas, disciplina y seguridad",
+              "pluralLabel": "incidencias",
+              "singularLabel": "incidencia",
+              "emptyTitle": "Sin incidencias",
+              "emptyDescription": "Registra la primera incidencia del personal"
+            },
+            "data": {
+              "list": "api://m/kirlet-hr/incidents",
+              "record": "api://m/kirlet-hr/incidents/:id",
+              "create": {
+                "method": "POST",
+                "action": "api://m/kirlet-hr/incidents"
+              },
+              "update": {
+                "method": "PATCH",
+                "action": "api://m/kirlet-hr/incidents/:id"
+              },
+              "delete": {
+                "method": "DELETE",
+                "action": "api://m/kirlet-hr/incidents/:id"
+              }
+            },
+            "table": {
+              "columns": [
+                {
+                  "key": "folio",
+                  "label": "Folio",
+                  "sortable": true,
+                  "priority": 1
+                },
+                {
+                  "key": "title",
+                  "label": "Título",
+                  "sortable": true,
+                  "priority": 1
+                },
+                {
+                  "key": "type",
+                  "label": "Tipo",
+                  "cell": "badge",
+                  "sortable": true,
+                  "priority": 2
+                },
+                {
+                  "key": "severity",
+                  "label": "Severidad",
+                  "cell": "badge",
+                  "sortable": true,
+                  "priority": 2
+                },
+                {
+                  "key": "status",
+                  "label": "Estado",
+                  "cell": "badge",
+                  "sortable": true,
+                  "priority": 1
+                },
+                {
+                  "key": "occurred_at",
+                  "label": "Ocurrida",
+                  "sortable": true,
+                  "priority": 3
+                }
+              ],
+              "fillHeight": true,
+              "mobileCards": true,
+              "serverQuery": true
+            },
+            "form": {
+              "fields": [
+                {
+                  "name": "title",
+                  "component": "input-text",
+                  "label": "Título",
+                  "required": true
+                },
+                {
+                  "name": "type",
+                  "component": "input-menu",
+                  "label": "Tipo",
+                  "required": true,
+                  "options": [
+                    {
+                      "value": "accidente",
+                      "label": "Accidente"
+                    },
+                    {
+                      "value": "enfermedad",
+                      "label": "Enfermedad"
+                    },
+                    {
+                      "value": "disciplina",
+                      "label": "Disciplina"
+                    },
+                    {
+                      "value": "queja",
+                      "label": "Queja"
+                    },
+                    {
+                      "value": "mejora",
+                      "label": "Mejora"
+                    },
+                    {
+                      "value": "seguridad",
+                      "label": "Seguridad"
+                    },
+                    {
+                      "value": "otro",
+                      "label": "Otro"
+                    }
+                  ]
+                },
+                {
+                  "name": "severity",
+                  "component": "input-menu",
+                  "label": "Severidad",
+                  "required": true,
+                  "options": [
+                    {
+                      "value": "baja",
+                      "label": "Baja"
+                    },
+                    {
+                      "value": "media",
+                      "label": "Media"
+                    },
+                    {
+                      "value": "alta",
+                      "label": "Alta"
+                    },
+                    {
+                      "value": "critica",
+                      "label": "Crítica"
+                    }
+                  ]
+                },
+                {
+                  "name": "employee_id",
+                  "component": "input-menu",
+                  "label": "Empleado involucrado",
+                  "optionsSource": "api://m/kirlet-hr/employees?as=options"
+                },
+                {
+                  "name": "occurred_at",
+                  "component": "input-date",
+                  "label": "Fecha de ocurrencia"
+                },
+                {
+                  "name": "location",
+                  "component": "input-text",
+                  "label": "Lugar"
+                },
+                {
+                  "name": "reported_by",
+                  "component": "input-text",
+                  "label": "Reportado por"
+                },
+                {
+                  "name": "assigned_to",
+                  "component": "input-text",
+                  "label": "Asignado a"
+                },
+                {
+                  "name": "description",
+                  "component": "input-textarea",
+                  "label": "Descripción"
+                },
+                {
+                  "name": "resolution_note",
+                  "component": "input-textarea",
+                  "label": "Nota de resolución"
+                }
+              ]
+            },
+            "headerActions": {
+              "detail": [
+                {
+                  "id": "review",
+                  "label": "En revisión",
+                  "variant": "secondary",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/incidents/:id/review"
+                  },
+                  "refresh": "record"
+                },
+                {
+                  "id": "start",
+                  "label": "En proceso",
+                  "variant": "secondary",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/incidents/:id/start"
+                  },
+                  "refresh": "record"
+                },
+                {
+                  "id": "resolve",
+                  "label": "Resolver",
+                  "variant": "primary",
+                  "confirm": "¿Marcar la incidencia como resuelta?",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/incidents/:id/resolve"
+                  },
+                  "refresh": "record"
+                },
+                {
+                  "id": "close",
+                  "label": "Cerrar",
+                  "variant": "primary",
+                  "confirm": "¿Cerrar la incidencia?",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/incidents/:id/close"
+                  },
+                  "refresh": "record"
+                },
+                {
+                  "id": "cancel",
+                  "label": "Cancelar",
+                  "variant": "danger",
+                  "confirm": "¿Cancelar esta incidencia?",
+                  "invoke": {
+                    "method": "POST",
+                    "action": "api://m/kirlet-hr/incidents/:id/cancel"
+                  },
+                  "refresh": "record"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

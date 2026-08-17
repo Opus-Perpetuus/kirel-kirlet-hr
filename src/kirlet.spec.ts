@@ -39,6 +39,24 @@ describe("kirlet-hr v2", () => {
       "incidents",
     ]);
     expect(m.widgets?.every((w) => w.capability === "embedded")).toBe(true);
+    expect(m.localFunctions?.widgets?.map((w) => w.id)).toEqual([
+      "headcount",
+      "leave",
+      "incidents",
+    ]);
+  });
+
+  test("mobile/local-pack.json is the offline surface", async () => {
+    const pack = await Bun.file(join(import.meta.dir, "../mobile/local-pack.json")).json();
+    expect(pack.technicalId).toBe("kirlet-hr");
+    const widgets = pack.localFunctions?.widgets ?? [];
+    expect(widgets.map((w: { id: string }) => w.id)).toEqual([
+      "headcount",
+      "leave",
+      "incidents",
+    ]);
+    const employees = JSON.stringify(pack.localFunctions?.pages?.["hr.employees"] ?? {});
+    expect(employees).toContain("api://m/kirlet-hr/employees");
   });
 
   test("schema v2 without history table", () => {

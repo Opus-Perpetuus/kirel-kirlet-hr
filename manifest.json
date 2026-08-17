@@ -202,6 +202,55 @@
       "permission": "kirlet.hr.dashboard.read"
     }
   ],
+  "localFunctions": {
+    "widgets": [
+      {
+        "id": "headcount",
+        "title": "Plantilla",
+        "subtitle": "Empleados activos",
+        "icon": "users",
+        "size": "sm",
+        "capability": "embedded",
+        "placement": "both",
+        "pageId": "hr.employees",
+        "permission": "kirlet.hr.employees.read",
+        "bind": {
+          "resource": "employees",
+          "metric": "count"
+        }
+      },
+      {
+        "id": "leave",
+        "title": "Ausencias",
+        "subtitle": "Solicitudes abiertas",
+        "icon": "calendar",
+        "size": "sm",
+        "capability": "embedded",
+        "placement": "in-app",
+        "pageId": "hr.leave-requests",
+        "permission": "kirlet.hr.leave.read",
+        "bind": {
+          "resource": "leave-requests",
+          "metric": "count"
+        }
+      },
+      {
+        "id": "incidents",
+        "title": "Incidencias",
+        "subtitle": "Abiertas",
+        "icon": "warning",
+        "size": "md",
+        "capability": "embedded",
+        "placement": "both",
+        "pageId": "hr.incidents",
+        "permission": "kirlet.hr.incidents.read",
+        "bind": {
+          "resource": "incidents",
+          "metric": "count"
+        }
+      }
+    ]
+  },
   "icon": {
     "label": "RR.HH.",
     "paths": [
