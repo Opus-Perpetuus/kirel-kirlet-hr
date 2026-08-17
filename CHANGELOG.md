@@ -2,6 +2,18 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.7.3](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.2...v0.7.3) (2026-08-17)
+
+
+### Features
+
+* **manifest:** widgets móviles de plantilla, ausencias e incidencias ([3ddf2b8](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/3ddf2b83484309f3cdb972a9e4d2ff2f01624654))
+
+
+### Bug Fixes
+
+* **manifest:** el widget de ausencias cuenta por ruta de API ([fcde57d](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/fcde57d2db8afaf2f1fa77548b527db3d465b819))
+
 ### [0.7.2](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.1...v0.7.2) (2026-08-01)
 
 

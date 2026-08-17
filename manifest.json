@@ -2,8 +2,8 @@
   "id": "KIRLET-hr",
   "technicalId": "kirlet-hr",
   "name": "Recursos Humanos",
-  "version": "0.7.2",
-  "image": "kyostenas/kirlet-hr:0.7.2",
+  "version": "0.7.3",
+  "image": "kyostenas/kirlet-hr:0.7.3",
   "compat": {
     "nox": ">=0.5.0",
     "kit": "^0.5.0"
