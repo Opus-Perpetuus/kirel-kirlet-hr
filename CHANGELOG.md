@@ -2,6 +2,13 @@
 
 KIRLET-hr release notes. Types: `release/types.base.json` + `types.extra.json`.
 
+### [0.7.4](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.3...v0.7.4) (2026-08-18)
+
+
+### Features
+
+* **mobile:** emit a local-pack from the HR page builders ([dd86fdc](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/commit/dd86fdc27bd441a206fbe454ce1710238cfa1624))
+
 ### [0.7.3](https://github.com/Opus-Perpetuus/kirel-kirlet-hr/compare/v0.7.2...v0.7.3) (2026-08-17)
 
 
